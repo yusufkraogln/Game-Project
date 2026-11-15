@@ -1,0 +1,196 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://political-mayhem.local/schemas/safe_snapshot.schema.json",
+  "title": "PoliticalMayhemAiSafeSnapshot",
+  "description": "Fog-of-war filtered match snapshot transmitted from Unity to the AI Gateway. Explicitly forbids opponent_budget, opponent_overall, hidden_support_rates, and private opponent strategy.",
+  "type": "object",
+  "required": [
+    "match_id",
+    "player_id",
+    "round_number",
+    "phase",
+    "party_budget",
+    "player_overall",
+    "cities",
+    "own_units",
+    "visible_opponent_activity",
+    "recent_events",
+    "unlocked_bonuses"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "match_id": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 80
+    },
+    "player_id": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 64,
+      "description": "Authenticated player session identity; never overridden by model arguments."
+    },
+    "round_number": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 12
+    },
+    "phase": {
+      "type": "string",
+      "enum": [
+        "CITY_VOTE",
+        "PREPARATION",
+        "RALLY_SPEECH",
+        "AI_EVALUATION",
+        "REVOLVER_DUEL",
+        "ELECTION_FINAL_SPEECH",
+        "ELECTION_BRIBE",
+        "ELECTION_RESULT",
+        "BALCONY_SPEECH"
+      ]
+    },
+    "current_role": {
+      "type": "string",
+      "enum": ["SPEAKER", "SABOTEUR", "ELECTION_CANDIDATE", "NONE"]
+    },
+    "party_budget": {
+      "type": "number",
+      "minimum": 0,
+      "description": "Authenticated player's own accumulated party donation budget."
+    },
+    "player_overall": {
+      "type": "object",
+      "description": "Authenticated player's own 5 ideological Overall ratings (0-100).",
+      "required": [
+        "nationalist",
+        "liberal",
+        "democrat",
+        "communist",
+        "imperialist"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "nationalist": { "type": "number", "minimum": 0, "maximum": 100 },
+        "liberal": { "type": "number", "minimum": 0, "maximum": 100 },
+        "democrat": { "type": "number", "minimum": 0, "maximum": 100 },
+        "communist": { "type": "number", "minimum": 0, "maximum": 100 },
+        "imperialist": { "type": "number", "minimum": 0, "maximum": 100 }
+      }
+    },
+    "cities": {
+      "type": "array",
+      "maxItems": 6,
+      "items": {
+        "type": "object",
+        "required": [
+          "city_name",
+          "population",
+          "ideology_distribution",
+          "rally_done",
+          "visible_campaign_presence"
+        ],
+        "additionalProperties": false,
+        "properties": {
+          "city_name": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 80
+          },
+          "population": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "ideology_distribution": {
+            "type": "object",
+            "required": [
+              "nationalist",
+              "liberal",
+              "democrat",
+              "communist",
+              "imperialist"
+            ],
+            "additionalProperties": false,
+            "properties": {
+              "nationalist": { "type": "number", "minimum": 0, "maximum": 100 },
+              "liberal": { "type": "number", "minimum": 0, "maximum": 100 },
+              "democrat": { "type": "number", "minimum": 0, "maximum": 100 },
+              "communist": { "type": "number", "minimum": 0, "maximum": 100 },
+              "imperialist": { "type": "number", "minimum": 0, "maximum": 100 }
+            }
+          },
+          "rally_done": {
+            "type": "boolean"
+          },
+          "visible_campaign_presence": {
+            "type": "object",
+            "required": ["own_unit_count", "visible_opponent_unit_count"],
+            "additionalProperties": false,
+            "properties": {
+              "own_unit_count": { "type": "integer", "minimum": 0 },
+              "visible_opponent_unit_count": { "type": "integer", "minimum": 0 },
+              "contested": { "type": "boolean" }
+            }
+          },
+          "winner": {
+            "type": "string",
+            "enum": ["NONE", "SELF", "OPPONENT"]
+          }
+        }
+      }
+    },
+    "own_units": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["unit_type", "count", "city_name"],
+        "additionalProperties": false,
+        "properties": {
+          "unit_type": { "type": "string", "minLength": 1, "maxLength": 80 },
+          "count": { "type": "integer", "minimum": 0 },
+          "city_name": { "type": "string", "minLength": 1, "maxLength": 80 },
+          "zone": { "type": "string", "maxLength": 80 },
+          "avg_health": { "type": "number", "minimum": 0 }
+        }
+      }
+    },
+    "visible_opponent_activity": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["activity_type", "city_name"],
+        "additionalProperties": false,
+        "properties": {
+          "activity_type": { "type": "string", "minLength": 1, "maxLength": 64 },
+          "city_name": { "type": "string", "minLength": 1, "maxLength": 80 },
+          "unit_type": { "type": "string", "maxLength": 80 },
+          "count": { "type": "integer", "minimum": 0 },
+          "zone": { "type": "string", "maxLength": 80 },
+          "speech_excerpt": { "type": "string", "maxLength": 240 },
+          "seconds_ago": { "type": "integer", "minimum": 0 }
+        }
+      }
+    },
+    "recent_events": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["event_type", "summary"],
+        "additionalProperties": false,
+        "properties": {
+          "event_type": { "type": "string", "minLength": 1, "maxLength": 64 },
+          "summary": { "type": "string", "minLength": 1, "maxLength": 240 },
+          "city_name": { "type": "string", "maxLength": 80 },
+          "seconds_ago": { "type": "integer", "minimum": 0 }
+        }
+      }
+    },
+    "unlocked_bonuses": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 80
+      }
+    }
+  }
+}

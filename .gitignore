@@ -1,0 +1,66 @@
+# Python
+.venv/
+venv/
+env/
+__pycache__/
+*.py[cod]
+*$py.class
+*.egg-info/
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+.coverage
+htmlcov/
+dist/
+build/
+
+# Environment secrets (keep .env.example tracked)
+.env
+.env.local
+.env.*.local
+
+# OS & Editors
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Runtime log files (keep evaluation/ results, prompts, and sample JSONL artifacts tracked)
+*.log
+ai/**/runtime_*.jsonl
+
+# Unity 6 generated & cache directories (root UnityRTS and nested project folders)
+UnityRTS/**/[Ll]ibrary/
+UnityRTS/**/[Tt]emp/
+UnityRTS/**/[Oo]bj/
+UnityRTS/**/[Bb]uild/
+UnityRTS/**/[Bb]uilds/
+UnityRTS/**/[Ll]ogs/
+UnityRTS/**/[Uu]ser[Ss]ettings/
+UnityRTS/**/[Mm]emory[Cc]aptures/
+UnityRTS/**/[Rr]ecordings/
+UnityRTS/**/Assets/AssetStoreTools*
+UnityRTS/**/Assets/AssetStoreTools*.meta
+
+# Unity generated IDE/build files
+UnityRTS/**/*.csproj
+UnityRTS/**/*.unityproj
+UnityRTS/**/*.sln
+UnityRTS/**/*.suo
+UnityRTS/**/*.tmp
+UnityRTS/**/*.user
+UnityRTS/**/*.userprefs
+UnityRTS/**/*.pidb
+UnityRTS/**/*.booproj
+UnityRTS/**/*.svd
+UnityRTS/**/*.pdb
+UnityRTS/**/*.mdb
+UnityRTS/**/*.opendb
+UnityRTS/**/*.VC.db
+UnityRTS/**/*.apk
+UnityRTS/**/*.aab
+UnityRTS/**/*.unitypackage
+UnityRTS/**/sysinfo.txt
+UnityRTS/**/crashlytics-build.properties

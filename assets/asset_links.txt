@@ -1,0 +1,290 @@
+POLITICAL MAYHEM: BATTLE FOR THE CITIES — 3D ASSET INVENTORY & LINKS
+======================================================================
+Root folder: /Users/yusufk/Documents/Dersler/Game/Proje/assets/
+License summary: All downloaded assets are CC0 1.0 Universal (Public Domain).
+Total verified files: 1,457 .glb, 95 .fbx, 61 .png textures (~103 MB).
+
+UNITY 6 IMPORT NOTE:
+- .fbx + .png files import natively into Unity 6.
+- .glb files import directly into Unity 6 once Unity's official glTFast
+  package (`com.unity.cloud.gltfast`) is added via Package Manager
+  (Add package by name -> `com.unity.cloud.gltfast`).
+
+======================================================================
+1. DOWNLOADED ASSET PACKS (READY IN LOCAL SUBFOLDERS)
+======================================================================
+
+--- A. CITIES & BUILDINGS (`cities_buildings/`) ---
+Fits the 6 cities: Başkent (Capitol/Parliament), Limankent (Harbor/Port),
+Demirkent (Industrial/Factory), Yeşilova (Eco/Park), Üniversitekent (Campus),
+and Dağşehir (Highland/Mountain).
+
+1) Kenney City Kit - Commercial (FBX + Texture)
+   - Category: Cities & Buildings (Başkent / Downtown / Urban centers)
+   - License: CC0 1.0 Universal
+   - Source URL: https://github.com/lucrybpin/unity-community-core-city-01/tree/main/Assets/City%2001/Third%20Party/Kenney/City%20Kit%20(Commercial)
+   - Official Page: https://kenney.nl/assets/city-kit-commercial
+   - Local Path: /Users/yusufk/Documents/Dersler/Game/Proje/assets/cities_buildings/kenney_city_commercial_fbx/
+
+2) Kenney City Kit - Commercial (GLB + Texture)
+   - Category: Cities & Buildings (Başkent / Downtown / Skyscrapers)
+   - License: CC0 1.0 Universal
+   - Source URL: https://github.com/shorepine/kenney/tree/main/3d/city-commercial
+   - Official Page: https://kenney.nl/assets/city-kit-commercial
+   - Local Path: /Users/yusufk/Documents/Dersler/Game/Proje/assets/cities_buildings/kenney_city_commercial_glb/
+
+3) Kenney City Kit - Industrial (FBX + Texture)
+   - Category: Cities & Buildings (Demirkent / Factories / Warehouses)
+   - License: CC0 1.0 Universal
+   - Source URL: https://github.com/lucrybpin/unity-community-core-city-01/tree/main/Assets/City%2001/Third%20Party/Kenney/City%20Kit%20(Industrial)
+   - Official Page: https://kenney.nl/assets/city-kit-industrial
+   - Local Path: /Users/yusufk/Documents/Dersler/Game/Proje/assets/cities_buildings/kenney_city_industrial_fbx/
+
+4) Kenney City Kit - Industrial (GLB + Texture)
+   - Category: Cities & Buildings (Demirkent / Chimneys / Tanks / Warehouses)
+   - License: CC0 1.0 Universal
+   - Source URL: https://github.com/shorepine/kenney/tree/main/3d/city-industrial
+   - Official Page: https://kenney.nl/assets/city-kit-industrial
+   - Local Path: /Users/yusufk/Documents/Dersler/Game/Proje/assets/cities_buildings/kenney_city_industrial_glb/
+
+5) Kenney Factory Kit (GLB + Texture)
+   - Category: Cities & Buildings (Demirkent / Industrial machinery & props)
+   - License: CC0 1.0 Universal
+   - Source URL: https://github.com/shorepine/kenney/tree/main/3d/factory
+   - Official Page: https://kenney.nl/assets/factory-kit
+   - Local Path: /Users/yusufk/Documents/Dersler/Game/Proje/assets/cities_buildings/kenney_factory_glb/
+
+6) Kenney City Kit - Suburban (FBX + Texture)
+   - Category: Cities & Buildings (Residential neighborhoods / Campus housing)
+   - License: CC0 1.0 Universal
+   - Source URL: https://github.com/lucrybpin/unity-community-core-city-01/tree/main/Assets/City%2001/Third%20Party/Kenney/City%20Kit%20(Suburban)
+   - Official Page: https://kenney.nl/assets/city-kit-suburban
+   - Local Path: /Users/yusufk/Documents/Dersler/Game/Proje/assets/cities_buildings/kenney_city_suburban_fbx/
+
+7) Kenney City Kit - Suburban (GLB + Texture)
+   - Category: Cities & Buildings (Residential neighborhoods / Fences / Driveways)
+   - License: CC0 1.0 Universal
+   - Source URL: https://github.com/shorepine/kenney/tree/main/3d/city-suburban
+   - Official Page: https://kenney.nl/assets/city-kit-suburban
+   - Local Path: /Users/yusufk/Documents/Dersler/Game/Proje/assets/cities_buildings/kenney_city_suburban_glb/
+
+8) Kenney City Kit - Roads (FBX + Texture)
+   - Category: Cities & Buildings (Roads, intersections, streetlights, barriers)
+   - License: CC0 1.0 Universal
+   - Source URL: https://github.com/lucrybpin/unity-community-core-city-01/tree/main/Assets/City%2001/Third%20Party/Kenney/City%20Kit%20(Roads)
+   - Official Page: https://kenney.nl/assets/city-kit-roads
+   - Local Path: /Users/yusufk/Documents/Dersler/Game/Proje/assets/cities_buildings/kenney_city_roads_fbx/
+
+9) Kenney City Kit - Roads (GLB + Texture)
+   - Category: Cities & Buildings (Roads, bridges, streetlights, construction barriers)
+   - License: CC0 1.0 Universal
+   - Source URL: https://github.com/shorepine/kenney/tree/main/3d/city-roads
+   - Official Page: https://kenney.nl/assets/city-kit-roads
+   - Local Path: /Users/yusufk/Documents/Dersler/Game/Proje/assets/cities_buildings/kenney_city_roads_glb/
+
+10) Kenney Modular Buildings (GLB + Texture)
+    - Category: Cities & Buildings (Capitol/Parliament steps, columns, arches & Campus)
+    - License: CC0 1.0 Universal
+    - Source URL: https://github.com/shorepine/kenney/tree/main/3d/modular-buildings
+    - Official Page: https://kenney.nl/assets/modular-buildings
+    - Local Path: /Users/yusufk/Documents/Dersler/Game/Proje/assets/cities_buildings/kenney_modular_buildings_glb/
+
+11) Kenney Watercraft Pack (GLB + Texture)
+    - Category: Cities & Buildings / Harbor (Limankent port ships, tugs, fishing boats, buoys)
+    - License: CC0 1.0 Universal
+    - Source URL: https://github.com/shorepine/kenney/tree/main/3d/watercraft
+    - Official Page: https://kenney.nl/assets/watercraft-pack
+    - Local Path: /Users/yusufk/Documents/Dersler/Game/Proje/assets/cities_buildings/kenney_watercraft_glb/
+
+12) Kenney Nature Kit (GLB + Texture)
+    - Category: Cities & Buildings / Environment (Yeşilova eco/park & Dağşehir mountains/cliffs)
+    - License: CC0 1.0 Universal
+    - Source URL: https://github.com/shorepine/kenney/tree/main/3d/nature
+    - Official Page: https://kenney.nl/assets/nature-kit
+    - Local Path: /Users/yusufk/Documents/Dersler/Game/Proje/assets/cities_buildings/kenney_nature_glb/
+
+13) Kenney Starter Kit City Builder Models (GLB + Texture)
+    - Category: Cities & Buildings (Plaza fountain `pavement-fountain.glb`, roads, parks)
+    - License: CC0 1.0 Universal
+    - Source URL: https://github.com/KenneyNL/Starter-Kit-City-Builder/tree/main/models
+    - Local Path: /Users/yusufk/Documents/Dersler/Game/Proje/assets/cities_buildings/kenney_starter_city_builder_glb/
+
+14) Quaternius Buildings Pack & Ultimate Buildings Pack (GLB)
+    - Category: Cities & Buildings (Multi-story civic buildings, columns, balconies, campus)
+    - License: CC0 1.0 Universal
+    - Source URLs:
+      - https://github.com/trebeljahr/quaternius-showcase/tree/main/public/glb/buildings_pack_2
+      - https://github.com/trebeljahr/quaternius-showcase/tree/main/public/glb/buildings_pack_3
+    - Official Pages:
+      - https://quaternius.com/packs/buildings.html
+      - https://quaternius.com/packs/ultimatetexturedbuildings.html
+    - Local Path: /Users/yusufk/Documents/Dersler/Game/Proje/assets/cities_buildings/quaternius_buildings_pack/
+
+15) Quaternius Modular Streets Pack (GLB)
+    - Category: Cities & Buildings (Streets, bridges, streetlights, traffic lights, road signs)
+    - License: CC0 1.0 Universal
+    - Source URL: https://github.com/trebeljahr/quaternius-showcase/tree/main/public/glb/street_pack
+    - Official Page: https://quaternius.com/packs/modularstreets.html
+    - Local Path: /Users/yusufk/Documents/Dersler/Game/Proje/assets/cities_buildings/quaternius_street_pack/
+
+16) Quaternius Ships Pack (GLB)
+    - Category: Cities & Buildings / Harbor (Limankent CruiseShip, Boat, Lifeboat)
+    - License: CC0 1.0 Universal
+    - Source URL: https://github.com/trebeljahr/quaternius-showcase/tree/main/public/glb/ships_pack
+    - Official Page: https://quaternius.com/packs/ships.html
+    - Local Path: /Users/yusufk/Documents/Dersler/Game/Proje/assets/cities_buildings/quaternius_ships_pack/
+
+17) Quaternius Simple Nature Pack & Ultimate Nature Pack (GLB)
+    - Category: Cities & Buildings / Environment (Yeşilova parks & Dağşehir snowy/rocky terrain)
+    - License: CC0 1.0 Universal
+    - Source URLs:
+      - https://github.com/trebeljahr/quaternius-showcase/tree/main/public/glb/simple_nature_pack
+      - https://github.com/trebeljahr/quaternius-showcase/tree/main/public/glb/nature_pack
+    - Official Pages:
+      - https://quaternius.com/packs/simplenature.html
+      - https://quaternius.com/packs/ultimatenature.html
+    - Local Path: /Users/yusufk/Documents/Dersler/Game/Proje/assets/cities_buildings/quaternius_nature_pack/
+
+
+--- B. VEHICLES (`vehicles/`) ---
+Fits Rally Convoy / Vans / Escort SUVs / Police / Civilian Traffic.
+
+18) Kenney Car Kit (FBX + Texture)
+    - Category: Vehicles (Rally vans, trucks, luxury SUVs, sedans, police, taxis)
+    - License: CC0 1.0 Universal
+    - Source URL: https://github.com/lucrybpin/unity-community-core-city-01/tree/main/Assets/City%2001/Third%20Party/Kenney/City%20Kit%20(Cars)/Models/FBX%20format
+    - Official Page: https://kenney.nl/assets/car-kit
+    - Local Path: /Users/yusufk/Documents/Dersler/Game/Proje/assets/vehicles/kenney_car_kit_fbx/
+
+19) Kenney Car Kit (GLB + Texture)
+    - Category: Vehicles (Full 50-model Car Kit including wheels & debris)
+    - License: CC0 1.0 Universal
+    - Source URL: https://github.com/shorepine/kenney/tree/main/3d/car
+    - Official Page: https://kenney.nl/assets/car-kit
+    - Local Path: /Users/yusufk/Documents/Dersler/Game/Proje/assets/vehicles/kenney_car_kit_glb/
+
+20) Kenney Starter Kit Racing Vehicles (GLB + Texture)
+    - Category: Vehicles (Colored convoy trucks: red/yellow/green/purple + motorcycle)
+    - License: CC0 1.0 Universal
+    - Source URL: https://github.com/KenneyNL/Starter-Kit-Racing/tree/main/models
+    - Local Path: /Users/yusufk/Documents/Dersler/Game/Proje/assets/vehicles/kenney_starter_racing_glb/
+
+
+--- C. CHARACTERS (`characters/`) ---
+Fits Volunteers, Propagandists, Bodyguards, and Crowd NPCs.
+
+21) Quaternius Ultimate Modular Men Pack (GLB)
+    - Category: Characters (`Suit.glb` Propagandist, `Swat.glb` Bodyguard, `Worker.glb`/`Casual.glb`/`Casual2.glb` Volunteers & Crowd NPCs)
+    - License: CC0 1.0 Universal
+    - Source URL: https://github.com/trebeljahr/quaternius-showcase/tree/main/public/glb/modular_men
+    - Official Page: https://quaternius.com/packs/ultimatemodularcharacters.html
+    - Local Path: /Users/yusufk/Documents/Dersler/Game/Proje/assets/characters/quaternius_modular_men_glb/
+
+22) Quaternius Ultimate Modular Women Pack (GLB)
+    - Category: Characters (`Suit.glb`/`Formal.glb` Propagandist, `Soldier.glb` Bodyguard, `Worker.glb`/`Casual.glb` Volunteers & Crowd NPCs)
+    - License: CC0 1.0 Universal
+    - Source URL: https://github.com/trebeljahr/quaternius-showcase/tree/main/public/glb/modular_women
+    - Official Page: https://quaternius.com/packs/ultimatemodularwomen.html
+    - Local Path: /Users/yusufk/Documents/Dersler/Game/Proje/assets/characters/quaternius_modular_women_glb/
+
+23) Kenney Mini Characters (GLB + Texture)
+    - Category: Characters (12 stylized citizens male/female a-f + glasses/masks accessories)
+    - License: CC0 1.0 Universal
+    - Source URL: https://github.com/shorepine/kenney/tree/main/3d/mini-characters
+    - Official Page: https://kenney.nl/assets/mini-characters-1
+    - Local Path: /Users/yusufk/Documents/Dersler/Game/Proje/assets/characters/kenney_mini_characters_glb/
+
+24) Kenney Blocky Characters (GLB + Textures)
+    - Category: Characters (18 blocky citizen variants a-r)
+    - License: CC0 1.0 Universal
+    - Source URL: https://github.com/shorepine/kenney/tree/main/3d/blocky-characters
+    - Official Page: https://kenney.nl/assets/blocky-characters
+    - Local Path: /Users/yusufk/Documents/Dersler/Game/Proje/assets/characters/kenney_blocky_characters_glb/
+
+25) Vuena Free Low-Poly Rigged & Animated Characters (FBX + GLB + Textures)
+    - Category: Characters (8 Mixamo-rigged characters with 10 clips: idle, walk, run, jump, fall, wave, cheer, dance, punch, death — ideal for Unity Humanoid Animator testing & cheering crowd animations)
+    - License: CC0 1.0 Universal
+    - Source URL: https://github.com/Vuena/free-low-poly-characters-cc0
+    - Local Path: /Users/yusufk/Documents/Dersler/Game/Proje/assets/characters/vuena_animated_characters/
+
+
+--- D. PROPS (`props/`) ---
+Fits Rally Stages, Speakers/Loudspeakers, Flags, Barriers, Streetlights, Campus Furniture.
+
+26) Kenney Furniture Kit - Rally & Campus Props (GLB + Texture)
+    - Category: Props (`speaker.glb`, `speakerSmall.glb`, `radio.glb`, `desk.glb` [podium], `bench.glb`, `chair.glb`, `tableCloth.glb`, `bookcaseClosed.glb`, `books.glb`, `pottedPlant.glb`)
+    - License: CC0 1.0 Universal
+    - Source URL: https://github.com/shorepine/kenney/tree/main/3d/furniture
+    - Official Page: https://kenney.nl/assets/furniture-kit
+    - Local Path: /Users/yusufk/Documents/Dersler/Game/Proje/assets/props/kenney_furniture_rally_glb/
+
+27) Kenney Retro Urban & Prototype Flag Props (GLB + Texture)
+    - Category: Props (`flag.glb` rally flags, `detail-barrier-*.glb` crowd control barriers, `detail-bench.glb`, `detail-light-*.glb`, `detail-dumpster-*.glb`)
+    - License: CC0 1.0 Universal
+    - Source URLs:
+      - https://github.com/shorepine/kenney/tree/main/3d/retro-urban
+      - https://github.com/shorepine/kenney/tree/main/3d/prototype
+    - Local Path: /Users/yusufk/Documents/Dersler/Game/Proje/assets/props/kenney_urban_props_glb/
+
+28) Quaternius Selected Props (GLB)
+    - Category: Props (`Goal_Flag.glb`, `Fence_1.glb`, `Fence_Corner.glb`, `Fence_Middle.glb`, `Dock_FirstAge.glb`, `Crate*.glb`, `Barrel.glb`, `Column_*.glb`, `Bookshelf.glb`, `Chair_*.glb`, `Table_RoundLarge.glb`)
+    - License: CC0 1.0 Universal
+    - Source URLs:
+      - https://github.com/trebeljahr/quaternius-showcase/tree/main/public/glb/platformer_game_pack
+      - https://github.com/trebeljahr/quaternius-showcase/tree/main/public/glb/real_time_strategy_pack
+      - https://github.com/trebeljahr/quaternius-showcase/tree/main/public/glb/house_interior_pack
+    - Local Path: /Users/yusufk/Documents/Dersler/Game/Proje/assets/props/quaternius_props_glb/
+
+License documentation files copied to root:
+- /Users/yusufk/Documents/Dersler/Game/Proje/assets/LICENSE_Kenney_CC0.txt
+- /Users/yusufk/Documents/Dersler/Game/Proje/assets/LICENSES_Quaternius_CC0.md
+
+
+======================================================================
+2. BROWSER-REQUIRED / MANUAL DOWNLOAD LINKS (RECOMMENDED EXTRAS)
+======================================================================
+The links below require a web browser, itch.io/Google Drive interaction, or
+Unity Package Manager login, so they were NOT downloaded automatically:
+
+A) Quaternius Official Packs (Free CC0 / QAL — FBX + glTF + Blend zips via itch.io / Drive)
+- Public Transport Pack (Buses, Ambulance — ideal for Rally Convoy / Election Bus!):
+  https://quaternius.com/packs/publictransport.html
+- Cars Pack (Sports, Police, Taxi, SUV — FBX + Blend):
+  https://quaternius.com/packs/cars.html
+- Downtown City MegaKit (Modern NYC/Boston style city blocks & props):
+  https://quaternius.com/packs/downtowncitymegakit.html
+  https://quaternius.itch.io/downtown-city-megakit
+- Universal Base Characters + Universal Animation Library (1 & 2):
+  https://quaternius.com/packs/universalbasecharacters.html
+  https://quaternius.com/packs/universalanimationlibrary.html
+  https://quaternius.com/packs/universalanimationlibrary2.html
+
+B) Kenney.nl Official Full Zips (includes FBX + OBJ + DAE + glTF + Unity prefabs)
+- Kenney All-in-One / Individual 3D Kits (CC0):
+  https://kenney.nl/assets/city-kit-commercial
+  https://kenney.nl/assets/city-kit-industrial
+  https://kenney.nl/assets/city-kit-suburban
+  https://kenney.nl/assets/city-kit-roads
+  https://kenney.nl/assets/car-kit
+  https://kenney.nl/assets/mini-characters-1
+  https://kenney.nl/assets/blocky-characters
+  https://kenney.nl/assets/watercraft-pack
+  https://kenney.nl/assets/nature-kit
+
+C) Poly Pizza (Browser download for standalone CC0 / CC-BY props like Megaphones & Buses)
+- Search CC0 props (megaphone, podium, microphone, bus, flag):
+  https://poly.pizza
+- Kenney Speaker Small (CC0):
+  https://poly.pizza/m/YaVrUj51TV
+
+D) Unity Asset Store (Free — import via Unity 6 Package Manager / My Assets)
+- Unity Asset Store Free 3D Section:
+  https://assetstore.unity.com/3d
+- Recommended free packs to search & add in browser:
+  * "Cartoon City FREE - Low Poly City 3D Models Pack" by ithappy
+  * "Simple Town Lite - Cartoon Assets" by Synty Studios
+  * "CITY package" by 255 pixel studios
+  * "Low Poly Street Pack" by Dynamic Art
+  * "Lowpoly Modern City Buildings Set" by karboosx
+- Required Unity 6 Package for .glb models:
+  * `com.unity.cloud.gltfast` (Unity glTFast via Package Manager)

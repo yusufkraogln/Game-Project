@@ -1,0 +1,165 @@
+[
+  {
+    "id": "unit_campaign_volunteer_v1",
+    "type": "unit",
+    "name": "campaign_volunteer",
+    "display_name_tr": "Kampanya Gönüllüsü",
+    "deployment_limit_per_round": 6,
+    "cost": {
+      "party_budget": 0,
+      "capacity_slot": 1,
+      "note": "No party budget spent; governed by per-round deployment capacity so donations stay preserved for Election Night."
+    },
+    "health": 80,
+    "damage": 8,
+    "armor": 1,
+    "speed": 5.0,
+    "strengths": [
+      "propagandist",
+      "fast_city_coverage",
+      "grassroots_crowd_mobilization"
+    ],
+    "weaknesses": [
+      "bodyguard",
+      "security_squad"
+    ],
+    "tactical_role": "Fast grassroots outreach unit (Kampanya Gönüllüsü). Excels at flanking unescorted Propagandists, capturing campaign activity share (15% election weight), and mobilizing undecided districts.",
+    "description": "Low-footprint agile campaigner armed with flyers, megaphones, and street outreach energy. Strong in numbers against isolated Propagandists (+35% bonus damage vs unarmored outreach units), but quickly dispersed by armored Bodyguards (Koruma) or Security Squads."
+  },
+  {
+    "id": "unit_propagandist_v1",
+    "type": "unit",
+    "name": "propagandist",
+    "display_name_tr": "Propagandacı",
+    "deployment_limit_per_round": 4,
+    "cost": {
+      "party_budget": 0,
+      "capacity_slot": 1,
+      "note": "No party budget spent; governed by per-round deployment capacity."
+    },
+    "health": 70,
+    "damage": 14,
+    "armor": 0,
+    "speed": 4.2,
+    "strengths": [
+      "voter_persuasion",
+      "ranged_rhetoric_pressure",
+      "bodyguard_kiting_with_escort"
+    ],
+    "weaknesses": [
+      "campaign_volunteer",
+      "saboteur_agent"
+    ],
+    "tactical_role": "Ranged ideological influence specialist (Propagandacı). Projects persuasive media messaging across city districts, raises campaign persuasion modifiers, and pressures slow melee defenders when screened by Bodyguards.",
+    "description": "High-impact rhetorical broadcaster who wears down opposing campaign morale from medium range and increases city voter receptivity during rallies. Fragile in close quarters; loses rapidly to swarming Campaign Volunteers (Kampanya Gönüllüsü) or infiltrating Saboteurs unless protected by Bodyguards."
+  },
+  {
+    "id": "unit_bodyguard_v1",
+    "type": "unit",
+    "name": "bodyguard",
+    "display_name_tr": "Koruma",
+    "deployment_limit_per_round": 3,
+    "cost": {
+      "party_budget": 0,
+      "capacity_slot": 1,
+      "note": "No party budget spent; governed by per-round deployment capacity."
+    },
+    "health": 150,
+    "damage": 16,
+    "armor": 5,
+    "speed": 3.6,
+    "strengths": [
+      "campaign_volunteer",
+      "saboteur_agent",
+      "rally_perimeter_defense"
+    ],
+    "weaknesses": [
+      "propagandist",
+      "rally_convoy"
+    ],
+    "tactical_role": "Heavy close-quarters protector (Koruma). Shields friendly Propagandists and rally stages, intercepts Campaign Volunteers, and shuts down aggressive Saboteur infiltrators.",
+    "description": "Armored political escort specialist with high health and melee deterrence. Hard-counters Campaign Volunteers (Kampanya Gönüllüsü) and deters physical Saboteur rushes, but slower movement speed makes Bodyguards vulnerable to kiting by Rally Convoys and ranged Propagandist crossfire."
+  },
+  {
+    "id": "unit_security_squad_v1",
+    "type": "unit",
+    "name": "security_squad",
+    "display_name_tr": "Güvenlik Ekibi",
+    "deployment_limit_per_round": 1,
+    "cost": {
+      "party_budget": 0,
+      "capacity_slot": 0,
+      "note": "Automatically assigned as a 5-person rally security unit to the active Speaker during rounds 1-6."
+    },
+    "health": 120,
+    "damage": 15,
+    "armor": 4,
+    "speed": 4.5,
+    "strengths": [
+      "saboteur_agent",
+      "physical_brawl_suppression",
+      "suspect_apprehension"
+    ],
+    "weaknesses": [
+      "verbal_sabotage",
+      "wide_crowd_dispersion"
+    ],
+    "tactical_role": "Five-person rally perimeter defense squad (Beş Kişilik Güvenlik Ekibi). Detects and captures a Saboteur who initiates physical brawl sabotage during a 60s rally.",
+    "description": "Dedicated five-member rally security detail guarding the Speaker's stage. Cannot penalize verbal counter-speeches, but pursues and arrests physical Saboteurs (Sabotajcı). Capturing the Saboteur places them among 5 suspects for the Speaker's Revolver mechanic."
+  },
+  {
+    "id": "unit_saboteur_agent_v1",
+    "type": "unit",
+    "name": "saboteur_agent",
+    "display_name_tr": "Sabotajcı",
+    "deployment_limit_per_round": 1,
+    "cost": {
+      "party_budget": 0,
+      "capacity_slot": 0,
+      "note": "Active role unit controlled by the non-speaking player during each opponent rally round (3 rounds per player)."
+    },
+    "health": 95,
+    "damage": 20,
+    "armor": 2,
+    "speed": 5.4,
+    "strengths": [
+      "speech_disruption",
+      "verbal_sabotage",
+      "physical_brawl_burst"
+    ],
+    "weaknesses": [
+      "security_squad",
+      "bodyguard",
+      "revolver_identification"
+    ],
+    "tactical_role": "Infiltrator specialist (Sabotajcı) entering the opponent's rally crowd. Chooses between penalty-free verbal counter-arguments evaluated by the LLM or high-risk physical brawls.",
+    "description": "Stealth political disrupter embedded inside the rival rally audience. Verbal sabotage carries zero arrest penalty and contests LLM persuasion directly; physical sabotage deals severe damage to rally performance and donation yield, but risks arrest by the 5-person Security Squad and Revolver disqualification."
+  },
+  {
+    "id": "unit_rally_convoy_v1",
+    "type": "unit",
+    "name": "rally_convoy",
+    "display_name_tr": "Miting Konvoyu",
+    "deployment_limit_per_round": 2,
+    "cost": {
+      "party_budget": 0,
+      "capacity_slot": 1,
+      "note": "No party budget spent; limited to 2 mobile field convoys per round."
+    },
+    "health": 180,
+    "damage": 12,
+    "armor": 3,
+    "speed": 6.2,
+    "strengths": [
+      "rapid_city_redeployment",
+      "bodyguard_kiting",
+      "aura_awareness"
+    ],
+    "weaknesses": [
+      "focused_bodyguard_trap",
+      "propagandist_counter_broadcast"
+    ],
+    "tactical_role": "Mobile field campaign convoy (Miting Konvoyu / Mobil Saha Ekibi). Rapidly projects campaign visibility and presence across distant cities such as Dağşehir and Başkent.",
+    "description": "High-mobility loudspeaker vehicle and mobile outreach team. Ideal for shifting campaign presence quickly between contested cities during the 30s preparation and real-time skirmishes, expanding fog-of-war scouting radius and outmaneuvering slow Bodyguard formations."
+  }
+]

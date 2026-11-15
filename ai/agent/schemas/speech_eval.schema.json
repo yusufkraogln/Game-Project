@@ -1,0 +1,100 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://political-mayhem.local/schemas/speech_eval.schema.json",
+  "title": "PoliticalMayhemSpeechEvaluation",
+  "description": "Structured output schema for Speech Evaluation AI across 60s rally speeches, verbal sabotage counters, and 15s Election Night final speeches.",
+  "type": "object",
+  "required": [
+    "speech_effectiveness",
+    "ideology_scores",
+    "persuasion_impact",
+    "sabotage_effectiveness",
+    "crowd_reaction",
+    "argument_quality",
+    "consistency_score",
+    "feedback_summary"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "speech_effectiveness": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 100,
+      "description": "Overall speech quality and impact score on 0-100 scale."
+    },
+    "ideology_scores": {
+      "type": "object",
+      "description": "Per-ideology alignment scores (0-100) used by the deterministic Overall formula: New = 0.80 * Old + 0.20 * Speech.",
+      "required": [
+        "nationalist",
+        "liberal",
+        "democrat",
+        "communist",
+        "imperialist"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "nationalist": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 100
+        },
+        "liberal": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 100
+        },
+        "democrat": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 100
+        },
+        "communist": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 100
+        },
+        "imperialist": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 100
+        }
+      }
+    },
+    "persuasion_impact": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 100,
+      "description": "Degree to which undecided or opposing voters in the city are swayed."
+    },
+    "sabotage_effectiveness": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 100,
+      "description": "Effectiveness of verbal sabotage counter-arguments (0 when evaluating an unopposed speech)."
+    },
+    "crowd_reaction": {
+      "type": "string",
+      "enum": ["CHEER", "BOO", "PROTEST", "THROW_OBJECTS", "MIXED"],
+      "description": "Dominant NPC Crowd Reaction System state triggered in Unity."
+    },
+    "argument_quality": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 100,
+      "description": "Coherence, clarity, and rhetorical force of the speech."
+    },
+    "consistency_score": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 100,
+      "description": "Political consistency relative to the speaker's established Overall profile."
+    },
+    "feedback_summary": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 400,
+      "description": "Concise narrative summary explaining why the crowd reacted this way."
+    }
+  }
+}

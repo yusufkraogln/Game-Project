@@ -1,0 +1,77 @@
+[
+  {
+    "id": "tech_nationalist_fervor_v1",
+    "type": "technology",
+    "name": "Nationalist Fervor Doctrine",
+    "display_name_tr": "Milliyetçi Coşku Doktrini",
+    "ideology": "nationalist",
+    "prerequisite_overall": {
+      "nationalist": 40
+    },
+    "unlock_condition": "Reach Nationalist (Milliyetçilik) Overall >= 40 through rally speeches emphasizing national sovereignty, domestic industry, and border security.",
+    "effect": "Grants +15% starting crowd enthusiasm in nationalist-leaning districts and +10% armor for Bodyguard (Koruma) units.",
+    "donation_bonus": "+12% donation multiplier from Nationalist voter blocs during city rallies.",
+    "combat_or_rally_bonus": "+10% Bodyguard armor and +15% initial crowd cheer resistance against verbal sabotage.",
+    "description": "Ideological progression threshold for Nationalist identity. Serves as an RTS doctrine upgrade unlocked organically through speech consistency rather than spending party budget."
+  },
+  {
+    "id": "tech_liberal_media_network_v1",
+    "type": "technology",
+    "name": "Liberal Media Network",
+    "display_name_tr": "Liberal Medya Ağı",
+    "ideology": "liberal",
+    "prerequisite_overall": {
+      "liberal": 40
+    },
+    "unlock_condition": "Reach Liberal (Liberalizm) Overall >= 40 through speeches emphasizing free enterprise, individual rights, and trade openness.",
+    "effect": "Unlocks +15% Propagandist persuasion range and boosts donation conversion in commercial hubs like Limankent.",
+    "donation_bonus": "+18% donation propensity bonus from Liberal demographic groups.",
+    "combat_or_rally_bonus": "+15% Propagandist (Propagandacı) effective outreach range and +10% persuasion impact in commercial cities.",
+    "description": "Ideological progression threshold for Liberal identity. Amplifies media reach, Propagandist efficiency, and private-sector campaign donations without draining the Election Night treasury."
+  },
+  {
+    "id": "tech_democrat_grassroots_v1",
+    "type": "technology",
+    "name": "Democrat Grassroots Coalition",
+    "display_name_tr": "Demokrat Taban Örgütü",
+    "ideology": "democrat",
+    "prerequisite_overall": {
+      "democrat": 40
+    },
+    "unlock_condition": "Reach Democrat (Demokratlık) Overall >= 40 through speeches emphasizing civic participation, institutional checks, and social consensus.",
+    "effect": "Expands Campaign Volunteer deployment cap by +1 per round and stabilizes crowd mood recovery after heckling.",
+    "donation_bonus": "+10% steady coalition donation bonus across ideologically balanced cities such as Yeşilova.",
+    "combat_or_rally_bonus": "+1 Campaign Volunteer (Kampanya Gönüllüsü) deployment limit per preparation phase and +12% crowd recovery from boos.",
+    "description": "Ideological progression threshold for Democrat identity. Strengthens broad-tent grassroots mobilization and stabilizes rallies in mixed-ideology battleground cities."
+  },
+  {
+    "id": "tech_communist_union_mobilization_v1",
+    "type": "technology",
+    "name": "Communist Union Mobilization",
+    "display_name_tr": "Komünist Sendika Seferberliği",
+    "ideology": "communist",
+    "prerequisite_overall": {
+      "communist": 40
+    },
+    "unlock_condition": "Reach Communist (Komünizm) Overall >= 40 through speeches emphasizing labor solidarity, collective welfare, and public ownership.",
+    "effect": "Increases Campaign Volunteer health by +15% and boosts organized turnout resistance in industrial hubs such as Demirkent.",
+    "donation_bonus": "+15% collective small-donor contribution scaling from Communist voter blocs.",
+    "combat_or_rally_bonus": "+15% Campaign Volunteer health and +15% protest resistance against opponent sabotage in working-class zones.",
+    "description": "Ideological progression threshold for Communist identity. Turns grassroots labor networks into durable street presence and reliable collective rally donations."
+  },
+  {
+    "id": "tech_imperialist_patronage_v1",
+    "type": "technology",
+    "name": "Imperialist Patronage Machine",
+    "display_name_tr": "Emperyalist Patronaj Ağı",
+    "ideology": "imperialist",
+    "prerequisite_overall": {
+      "imperialist": 40
+    },
+    "unlock_condition": "Reach Imperialist (Emperyalizm) Overall >= 40 through speeches emphasizing geopolitical projection, mega-infrastructure, and centralized authority.",
+    "effect": "Boosts elite patronage donations by +20% and applies a 1.20x bribery efficiency multiplier on the Election Night diminishing-returns curve (half_saturation = 6000, still strictly capped at 2 percentage points).",
+    "donation_bonus": "+20% elite-patronage donation scale factor in major hubs like Başkent.",
+    "combat_or_rally_bonus": "+10% Saboteur verbal pressure and 1.20x Election Night bribe efficiency (half_saturation = 6000) within the hard 2% max vote-swing cap.",
+    "description": "Ideological progression threshold for Imperialist identity. Maximizes high-roller fundraising during rallies to finance decisive Election Night swing allocations."
+  }
+]
