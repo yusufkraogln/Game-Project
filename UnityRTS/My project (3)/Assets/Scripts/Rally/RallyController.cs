@@ -562,7 +562,7 @@ namespace PoliticalMayhem.Rally
                 _micRmsLevel = 0f;
                 _micPeakLevel = 0f;
                 _isMicRecording = true;
-                _micStatus = $"🎙️ Kayıt başlatıldı ({_micDevice})...";
+                _micStatus = $"[Mikrofon] Kayıt başlatıldı ({_micDevice})...";
             }
             catch (Exception ex)
             {
@@ -655,7 +655,7 @@ namespace PoliticalMayhem.Rally
             float elapsed = Mathf.Max(0f, Time.realtimeSinceStartup - _micRecordStartTime);
             int bars = Mathf.Clamp(Mathf.RoundToInt(_micRmsLevel * 40f), 0, 10);
             string meter = new string('|', bars) + new string('.', 10 - bars);
-            _micStatus = $"🎙️ Kayıt ({elapsed:F1}s) [{meter}] Seviye:{_micRmsLevel:F2} (Pik:{_micPeakLevel:F2})";
+            _micStatus = $"[Mikrofon] Kayıt ({elapsed:F1}s) [{meter}] Seviye:{_micRmsLevel:F2} (Pik:{_micPeakLevel:F2})";
         }
 
         private void DispatchSpeechTranscription(float durationSec, float rmsLevel, string wavBase64)
@@ -686,7 +686,7 @@ namespace PoliticalMayhem.Rally
             if (_gatewayClient != null)
             {
                 _isTranscribingMic = true;
-                _micStatus = $"🎙️ Ses metne çevriliyor ({durationSec:F1}s, {req.city_name})...";
+                _micStatus = $"[Mikrofon] Ses metne çevriliyor ({durationSec:F1}s, {req.city_name})...";
                 _gatewayClient.TranscribeSpeech(req, (transcript, isFallback) =>
                 {
                     _isTranscribingMic = false;
@@ -703,7 +703,7 @@ namespace PoliticalMayhem.Rally
         {
             if (string.IsNullOrWhiteSpace(transcript))
             {
-                _micStatus = "🎙️ Ses metne çevrilemedi; metin girişini kullanın.";
+                _micStatus = "[Mikrofon] Ses metne çevrilemedi; metin girişini kullanın.";
                 return;
             }
 
@@ -714,8 +714,8 @@ namespace PoliticalMayhem.Rally
                 ? cleaned
                 : $"{_speakerTranscript.TrimEnd()} {cleaned}");
             _micStatus = isFallback
-                ? "🎙️ Ses transkripti eklendi (Offline şehir uyumlu mod)."
-                : "🎙️ Ses başarıyla metne çevrildi!";
+                ? "[Mikrofon] Ses transkripti eklendi (Çevrimdışı şehir uyumlu mod)."
+                : "[Mikrofon] Ses başarıyla metne çevrildi!";
         }
 
         private static string EncodeClipToWavBase64(

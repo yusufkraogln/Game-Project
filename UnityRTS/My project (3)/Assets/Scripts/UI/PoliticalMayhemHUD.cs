@@ -53,7 +53,8 @@ namespace PoliticalMayhem.UI
         private string _bribeAmountInput = "1000";
         private string _actionFeedback = string.Empty;
 
-        private int _aiTabIndex = 0; // 0 = Plan & Araçlar, 1 = Validator, 2 = Safe Snapshot JSON
+        private int _leftTabIndex = 0; // 0 = Birimler, 1 = Şehirler
+        private int _aiTabIndex = 0; // 0 = Plan & Araçlar, 1 = Doğrulama, 2 = Güvenli Durum JSON
         private Vector2 _leftScroll;
         private Vector2 _bottomScroll;
         private Vector2 _rightScroll;
@@ -398,7 +399,8 @@ namespace PoliticalMayhem.UI
                     float startX = _showCitiesDrawer ? (8f + leftWidth + 8f) : Mathf.Max(8f, (w - Mathf.Min(720f, w - 16f)) * 0.5f);
                     float endX = _showAiDrawer ? (w - rightWidth - 16f) : Mathf.Min(w - 8f, startX + Mathf.Min(720f, w - 16f));
                     float bottomW = Mathf.Max(260f, endX - startX);
-                    float bottomH = Mathf.Min(166f, h * 0.34f);
+                    float desiredBottomH = _gameManager.CurrentPhase == TurnPhase.RALLY_SPEECH ? 162f : 104f;
+                    float bottomH = Mathf.Min(desiredBottomH, h * 0.34f);
                     Rect bottomRect = new Rect(startX, h - bottomH - 8f, bottomW, bottomH);
                     _hudBlockingRects.Add(bottomRect);
                     DrawBottomPhaseBar(bottomRect);
@@ -442,9 +444,9 @@ namespace PoliticalMayhem.UI
                 GUILayout.Label("AI Komutan Sağlayıcısı:", _subHeaderStyle);
                 GUILayout.BeginHorizontal();
                 AiProviderMode mode = _commanderPanel.CurrentProviderMode;
-                if (SolidButton("Auto", mode == AiProviderMode.Auto ? AccentBlue : BtnSlate))
+                if (SolidButton("Otomatik", mode == AiProviderMode.Auto ? AccentBlue : BtnSlate))
                     _commanderPanel.SetProviderMode(AiProviderMode.Auto);
-                if (SolidButton("Cloud API (Hızlı)", mode == AiProviderMode.CloudApi ? AccentBlue : BtnSlate))
+                if (SolidButton("Bulut AI (Hızlı)", mode == AiProviderMode.CloudApi ? AccentBlue : BtnSlate))
                     _commanderPanel.SetProviderMode(AiProviderMode.CloudApi);
                 if (SolidButton("Yerel Ollama", mode == AiProviderMode.LocalOllama ? AccentBlue : BtnSlate))
                     _commanderPanel.SetProviderMode(AiProviderMode.LocalOllama);
@@ -453,7 +455,7 @@ namespace PoliticalMayhem.UI
 
             GUILayout.FlexibleSpace();
 
-            if (SolidButton("▶ MAÇA BAŞLA (Yerel 2 Oyuncu / Demo Modu)", AccentGreen, GUILayout.Height(36)))
+            if (SolidButton("MAÇA BAŞLA (Yerel 2 Oyuncu / Demo Modu)", AccentGreen, GUILayout.Height(36)))
             {
                 _showStartMenu = false;
                 _showCitiesDrawer = true;
@@ -462,21 +464,21 @@ namespace PoliticalMayhem.UI
 
             GUILayout.Space(5);
             GUILayout.BeginHorizontal();
-            if (SolidButton("🌐 Photon Host Başlat", AccentBlue, GUILayout.Height(30)))
+            if (SolidButton("Photon Host Başlat", AccentBlue, GUILayout.Height(30)))
             {
                 if (_authority != null) _authority.StartHost();
                 _showStartMenu = false;
                 _showCitiesDrawer = true;
                 SetTimersPaused(false);
             }
-            if (SolidButton("🔗 Photon Client Katıl", BtnSlate, GUILayout.Height(30)))
+            if (SolidButton("Photon Client Katıl", BtnSlate, GUILayout.Height(30)))
             {
                 if (_authority != null) _authority.StartClient();
                 _showStartMenu = false;
                 _showCitiesDrawer = true;
                 SetTimersPaused(false);
             }
-            if (SolidButton("❓ Kontroller", BtnSlate, GUILayout.Width(105), GUILayout.Height(30)))
+            if (SolidButton("Kontroller", BtnSlate, GUILayout.Width(105), GUILayout.Height(30)))
             {
                 _showStartMenu = false;
                 _showHelpModal = true;
@@ -500,12 +502,12 @@ namespace PoliticalMayhem.UI
             // Row 1: Round/Phase, Timer Controls, Perspective, Menu
             GUILayout.BeginHorizontal();
             string phaseTr = GetPhaseDisplayNameTr(_gameManager.CurrentPhase);
-            GUILayout.Label($"TUR {_gameManager.RoundNumber}/6 • {phaseTr} ({Mathf.Max(0f, timer):F0}s)", _headerStyle, GUILayout.Width(268));
+            GUILayout.Label($"TUR {_gameManager.RoundNumber}/6 | {phaseTr} ({Mathf.Max(0f, timer):F0} sn)", _headerStyle, GUILayout.Width(275));
 
-            if (SolidButton(paused ? "▶ Devam" : "⏸ Duraklat", paused ? AccentGreen : BtnSlate, GUILayout.Width(98), GUILayout.Height(26)))
+            if (SolidButton(paused ? "Devam Et" : "Duraklat", paused ? AccentGreen : BtnSlate, GUILayout.Width(86), GUILayout.Height(25)))
                 SetTimersPaused(!paused);
 
-            if (SolidButton("Sonraki Aşama >>", AccentBlue, GUILayout.Width(142), GUILayout.Height(26)))
+            if (SolidButton("Sonraki Aşama >>", AccentBlue, GUILayout.Width(134), GUILayout.Height(25)))
             {
                 if (_electionController != null && _electionController.IsElectionPhase())
                     _electionController.ForceAdvanceElectionPhase();
@@ -516,12 +518,12 @@ namespace PoliticalMayhem.UI
             GUILayout.FlexibleSpace();
 
             bool isA = _gameManager.LocalPlayerId == PlayerIdentity.PlayerAId;
-            if (SolidButton("Oyuncu A", isA ? AccentBlue : BtnSlate, GUILayout.Width(82), GUILayout.Height(26)))
+            if (SolidButton("Oyuncu A", isA ? AccentBlue : BtnSlate, GUILayout.Width(82), GUILayout.Height(25)))
                 _gameManager.SetLocalPlayerPerspective(PlayerIdentity.PlayerAId);
-            if (SolidButton("Oyuncu B", !isA ? AccentRed : BtnSlate, GUILayout.Width(82), GUILayout.Height(26)))
+            if (SolidButton("Oyuncu B", !isA ? AccentRed : BtnSlate, GUILayout.Width(82), GUILayout.Height(25)))
                 _gameManager.SetLocalPlayerPerspective(PlayerIdentity.PlayerBId);
 
-            if (SolidButton("Menü", BtnSlate, GUILayout.Width(58), GUILayout.Height(26)))
+            if (SolidButton("Menü", BtnSlate, GUILayout.Width(60), GUILayout.Height(25)))
             {
                 _showStartMenu = true;
                 SetTimersPaused(true);
@@ -530,28 +532,29 @@ namespace PoliticalMayhem.UI
 
             GUILayout.Space(2);
 
-            // Row 2: Budget, Score, Top Overall Summary, Drawer Toggles
+            // Row 2: Budget, Score, Role, Drawer Toggles (clean ASCII/Turkish, never clipped)
             GUILayout.BeginHorizontal();
-            GUILayout.Label($"Bütçe: ₺{self.partyBudget:N0}   |   Şehirler: A {_gameManager.PlayerA.citiesWon} - {_gameManager.PlayerB.citiesWon} B   |   Rol: {_gameManager.GetPlayerRole(_gameManager.LocalPlayerId)}", _bodyStyle);
+            string roleTr = GetRoleDisplayNameTr(_gameManager.GetPlayerRole(_gameManager.LocalPlayerId));
+            GUILayout.Label($"Bütçe: {self.partyBudget:N0} TL   |   Şehirler: A {_gameManager.PlayerA.citiesWon} - {_gameManager.PlayerB.citiesWon} B   |   Rol: {roleTr}", _bodyStyle);
             GUILayout.FlexibleSpace();
 
-            if (SolidButton(_showCitiesDrawer ? "🏙️ Şehirler [Açık]" : "🏙️ Şehirler & Birimler", _showCitiesDrawer ? AccentBlue : BtnSlate, GUILayout.Width(148), GUILayout.Height(25)))
+            if (SolidButton(_showCitiesDrawer ? "Şehirler [Açık]" : "Şehirler & Birimler", _showCitiesDrawer ? AccentBlue : BtnSlate, GUILayout.Width(138), GUILayout.Height(25)))
                 _showCitiesDrawer = !_showCitiesDrawer;
 
-            if (SolidButton(_showAiDrawer ? "🤖 AI Komutan [Açık]" : "🤖 AI Komutan (MCP)", _showAiDrawer ? AccentGreen : BtnSlate, GUILayout.Width(146), GUILayout.Height(25)))
+            if (SolidButton(_showAiDrawer ? "AI Komutan [Açık]" : "AI Komutan", _showAiDrawer ? AccentGreen : BtnSlate, GUILayout.Width(128), GUILayout.Height(25)))
                 _showAiDrawer = !_showAiDrawer;
 
             if (_cameraController != null)
             {
                 bool freeCam = _cameraController.IsFreeCameraMode;
-                if (SolidButton(freeCam ? "🎥 Serbest [C]" : "🎥 Harita [C]", freeCam ? AccentGold : BtnSlate, GUILayout.Width(104), GUILayout.Height(25)))
+                if (SolidButton(freeCam ? "Serbest [C]" : "Harita [C]", freeCam ? BtnGold : BtnSlate, GUILayout.Width(90), GUILayout.Height(25)))
                     _cameraController.ToggleFreeCameraMode();
             }
 
-            if (SolidButton("❓", BtnSlate, GUILayout.Width(28), GUILayout.Height(25)))
+            if (SolidButton("?", BtnSlate, GUILayout.Width(32), GUILayout.Height(25)))
                 _showHelpModal = !_showHelpModal;
 
-            if (SolidButton("F1", BtnSlate, GUILayout.Width(32), GUILayout.Height(25)))
+            if (SolidButton("F1", BtnSlate, GUILayout.Width(38), GUILayout.Height(25)))
                 _hudVisible = false;
             GUILayout.EndHorizontal();
 
@@ -562,7 +565,6 @@ namespace PoliticalMayhem.UI
         {
             DrawSolidRect(rect, BgCard, BorderSubtle, 1);
             GUILayout.BeginArea(new Rect(rect.x + 8, rect.y + 8, rect.width - 16, rect.height - 16));
-            _leftScroll = GUILayout.BeginScrollView(_leftScroll);
 
             PlayerState self = _gameManager.GetLocalPlayerState();
             GUILayout.Label($"SİYASİ OVERALL ({self.displayName})", _headerStyle);
@@ -572,70 +574,114 @@ namespace PoliticalMayhem.UI
             DrawIdeologyBar("Komünist", self.overall.communist, new Color(0.90f, 0.22f, 0.32f));
             DrawIdeologyBar("Emperyalist", self.overall.imperialist, new Color(0.75f, 0.48f, 0.92f));
 
-            GUILayout.Space(8);
-            GUILayout.Label("6 STRATEJİK ŞEHİR", _headerStyle);
-            if (_gameManager.CityManager != null)
-            {
-                IReadOnlyList<CityState> cities = _gameManager.CityManager.Cities;
-                for (int i = 0; i < cities.Count; i++)
-                {
-                    CityState city = cities[i];
-                    DrawCardSection(() =>
-                    {
-                        string status = _gameManager.HasActiveRallyCity && _gameManager.ActiveRallyCity == city.cityId
-                            ? " [MİTİNG]"
-                            : (city.rallyDone ? " [BİTTİ]" : "");
-                        string win = city.winnerSlot != PlayerSlot.None ? $" [{city.winnerSlot}]" : "";
-                        IdeologyType dom = city.ideologyDistribution.GetDominantIdeology();
-                        GUILayout.Label($"{city.displayName} ({city.population:N0}){status}{win}", _subHeaderStyle);
-                        GUILayout.Label($"Baskın: {IdeologyCodec.GetDisplayNameTr(dom)} %{city.ideologyDistribution.Get(dom):F0}", _mutedStyle);
-
-                        GUILayout.BeginHorizontal();
-                        if (SolidButton("Odakla", BtnSlate))
-                        {
-                            _deployTargetCity = city.cityId;
-                            if (_cameraController != null) _cameraController.FocusCity(city.cityId);
-                        }
-                        if (_gameManager.CurrentPhase == TurnPhase.CITY_VOTE && !city.rallyDone)
-                        {
-                            if (SolidButton("Oy Ver", AccentGreen) && _authority != null)
-                                _authority.RequestVoteRallyCity(_gameManager.LocalPlayerId, city.cityId, out _actionFeedback);
-                        }
-                        if (_unitController != null && _unitController.SelectedUnits.Count > 0)
-                        {
-                            if (SolidButton("Sevk Et", AccentBlue) && _authority != null)
-                            {
-                                Vector3 dest = _gameManager.CityManager.GetCityWorldPosition(city.cityId);
-                                _authority.RequestMoveGroup(_gameManager.LocalPlayerId, _unitController.GetSelectedUnitIds(), dest, city.cityId, CityCatalog.GetPrimaryZoneName(city.cityId));
-                            }
-                        }
-                        GUILayout.EndHorizontal();
-                    });
-                    GUILayout.Space(4);
-                }
-            }
-
             GUILayout.Space(6);
-            GUILayout.Label($"BİRİM GÖREVLENDİR → {CityCatalog.GetDisplayName(_deployTargetCity)}", _headerStyle);
-            foreach (UnitType ut in UnitCatalog.DeployableTypes)
-            {
-                int rem = _gameManager.GetRemainingDeploymentCapacity(_gameManager.LocalPlayerId, ut);
-                int max = _gameManager.GetDeploymentLimitForRound(_gameManager.LocalPlayerId, ut);
-                if (SolidButton($"+1 {UnitCatalog.GetDisplayNameTr(ut)} ({rem}/{max})", BtnHover))
-                {
-                    if (_authority != null)
-                        _authority.RequestDeployUnit(_gameManager.LocalPlayerId, ut, _deployTargetCity, CityCatalog.GetPrimaryZoneName(_deployTargetCity), 1, out _actionFeedback);
-                }
-                GUILayout.Space(2);
-            }
+            GUILayout.BeginHorizontal();
+            if (SolidButton("Birimler & Görev", _leftTabIndex == 0 ? BtnGold : BtnSlate, GUILayout.Height(26)))
+                _leftTabIndex = 0;
+            if (SolidButton("6 Şehir", _leftTabIndex == 1 ? BtnGold : BtnSlate, GUILayout.Height(26)))
+                _leftTabIndex = 1;
+            GUILayout.EndHorizontal();
 
-            if (_unitController != null)
+            GUILayout.Space(4);
+            _leftScroll = GUILayout.BeginScrollView(_leftScroll);
+
+            if (_leftTabIndex == 0)
             {
-                GUILayout.BeginHorizontal();
-                if (SolidButton("Tümünü Seç", BtnSlate)) _unitController.SelectAllOwnedUnits(_gameManager.LocalPlayerId);
-                if (SolidButton("Temizle", BtnSlate)) _unitController.ClearSelection();
-                GUILayout.EndHorizontal();
-                GUILayout.Label($"Seçili Birim: {_unitController.SelectedUnits.Count} | Haritada: {CampaignUnit.ActiveUnits.Count}", _mutedStyle);
+                GUILayout.Label($"HEDEF ŞEHİR: {CityCatalog.GetDisplayName(_deployTargetCity)}", _subHeaderStyle);
+                // Clean 3x2 city target selector so long names like Üniversitekent never wrap or clip
+                for (int row = 0; row < 3; row++)
+                {
+                    GUILayout.BeginHorizontal();
+                    for (int col = 0; col < 2; col++)
+                    {
+                        CityId cid = CityCatalog.All[row * 2 + col];
+                        if (SolidButton(CityCatalog.GetDisplayName(cid), _deployTargetCity == cid ? AccentBlue : BtnSlate, GUILayout.Height(24)))
+                        {
+                            _deployTargetCity = cid;
+                            if (_cameraController != null) _cameraController.FocusCity(cid);
+                        }
+                    }
+                    GUILayout.EndHorizontal();
+                }
+
+                GUILayout.Space(6);
+                GUILayout.Label("BİRİM GÖREVLENDİR (Ücretsiz / Tur Limiti)", _headerStyle);
+                foreach (UnitType ut in UnitCatalog.DeployableTypes)
+                {
+                    int rem = _gameManager.GetRemainingDeploymentCapacity(_gameManager.LocalPlayerId, ut);
+                    int max = _gameManager.GetDeploymentLimitForRound(_gameManager.LocalPlayerId, ut);
+                    if (SolidButton($"+1 {UnitCatalog.GetDisplayNameTr(ut)} ({rem}/{max})", BtnHover, GUILayout.Height(27)))
+                    {
+                        if (_authority != null)
+                            _authority.RequestDeployUnit(_gameManager.LocalPlayerId, ut, _deployTargetCity, CityCatalog.GetPrimaryZoneName(_deployTargetCity), 1, out _actionFeedback);
+                    }
+                    GUILayout.Space(2);
+                }
+
+                if (_unitController != null)
+                {
+                    GUILayout.Space(6);
+                    GUILayout.Label("SEÇİM & SEVKİYAT", _headerStyle);
+                    GUILayout.BeginHorizontal();
+                    if (SolidButton("Tümünü Seç", BtnSlate)) _unitController.SelectAllOwnedUnits(_gameManager.LocalPlayerId);
+                    if (SolidButton("Temizle", BtnSlate)) _unitController.ClearSelection();
+                    GUILayout.EndHorizontal();
+                    if (_unitController.SelectedUnits.Count > 0)
+                    {
+                        if (SolidButton($"Seçilileri {CityCatalog.GetDisplayName(_deployTargetCity)} Şehrine Sevk Et", AccentBlue, GUILayout.Height(28)) && _authority != null)
+                        {
+                            Vector3 dest = _gameManager.CityManager.GetCityWorldPosition(_deployTargetCity);
+                            _authority.RequestMoveGroup(_gameManager.LocalPlayerId, _unitController.GetSelectedUnitIds(), dest, _deployTargetCity, CityCatalog.GetPrimaryZoneName(_deployTargetCity));
+                        }
+                    }
+                    GUILayout.Label($"Seçili Birim: {_unitController.SelectedUnits.Count} | Haritada: {CampaignUnit.ActiveUnits.Count}", _mutedStyle);
+                }
+            }
+            else
+            {
+                GUILayout.Label("6 STRATEJİK ŞEHİR", _headerStyle);
+                if (_gameManager.CityManager != null)
+                {
+                    IReadOnlyList<CityState> cities = _gameManager.CityManager.Cities;
+                    for (int i = 0; i < cities.Count; i++)
+                    {
+                        CityState city = cities[i];
+                        DrawCardSection(() =>
+                        {
+                            string status = _gameManager.HasActiveRallyCity && _gameManager.ActiveRallyCity == city.cityId
+                                ? " [MİTİNG]"
+                                : (city.rallyDone ? " [BİTTİ]" : "");
+                            string win = city.winnerSlot != PlayerSlot.None
+                                ? (city.winnerSlot == PlayerSlot.PlayerA ? " [Oyuncu A]" : " [Oyuncu B]")
+                                : "";
+                            IdeologyType dom = city.ideologyDistribution.GetDominantIdeology();
+                            GUILayout.Label($"{city.displayName} ({city.population:N0}){status}{win}", _subHeaderStyle);
+                            GUILayout.Label($"Baskın: {IdeologyCodec.GetDisplayNameTr(dom)} %{city.ideologyDistribution.Get(dom):F0}", _mutedStyle);
+
+                            GUILayout.BeginHorizontal();
+                            if (SolidButton("Odakla", BtnSlate))
+                            {
+                                _deployTargetCity = city.cityId;
+                                if (_cameraController != null) _cameraController.FocusCity(city.cityId);
+                            }
+                            if (_gameManager.CurrentPhase == TurnPhase.CITY_VOTE && !city.rallyDone)
+                            {
+                                if (SolidButton("Oy Ver", AccentGreen) && _authority != null)
+                                    _authority.RequestVoteRallyCity(_gameManager.LocalPlayerId, city.cityId, out _actionFeedback);
+                            }
+                            if (_unitController != null && _unitController.SelectedUnits.Count > 0)
+                            {
+                                if (SolidButton("Sevk Et", AccentBlue) && _authority != null)
+                                {
+                                    Vector3 dest = _gameManager.CityManager.GetCityWorldPosition(city.cityId);
+                                    _authority.RequestMoveGroup(_gameManager.LocalPlayerId, _unitController.GetSelectedUnitIds(), dest, city.cityId, CityCatalog.GetPrimaryZoneName(city.cityId));
+                                }
+                            }
+                            GUILayout.EndHorizontal();
+                        });
+                        GUILayout.Space(4);
+                    }
+                }
             }
 
             if (!string.IsNullOrEmpty(_actionFeedback))
@@ -666,7 +712,7 @@ namespace PoliticalMayhem.UI
                     {
                         CityState c = cities[i];
                         GUI.enabled = !c.rallyDone;
-                        if (SolidButton(c.rallyDone ? $"{c.displayName} ✓" : c.displayName, c.rallyDone ? BtnSlate : AccentGreen))
+                        if (SolidButton(c.rallyDone ? $"{c.displayName} [OK]" : c.displayName, c.rallyDone ? BtnSlate : AccentGreen))
                         {
                             if (_authority != null)
                                 _authority.RequestVoteRallyCity(localId, c.cityId, out _actionFeedback);
@@ -681,12 +727,12 @@ namespace PoliticalMayhem.UI
             else if (phase == TurnPhase.PREPARATION)
             {
                 CityState city = _gameManager.CityManager != null ? _gameManager.CityManager.GetCity(_gameManager.ActiveRallyCity) : null;
-                GUILayout.Label($"AŞAMA 2 — HAZIRLIK ({city?.displayName ?? ""}) • Birimlerini Konuşlandır veya AI'a Danış", _headerStyle);
+                GUILayout.Label($"AŞAMA 2 - HAZIRLIK ({city?.displayName ?? ""}) | Birimlerini Konuşlandır veya AI'a Danış", _headerStyle);
                 if (city != null)
                     GUILayout.Label($"Şehir İdeolojileri: {city.ideologyDistribution.ToShortSummary()}", _bodyStyle);
                 GUILayout.BeginHorizontal();
-                if (SolidButton("🏙️ Şehir & Birim Panelini Aç", AccentBlue)) _showCitiesDrawer = true;
-                if (SolidButton("🤖 AI Komutandan Plan Al", AccentGreen)) _showAiDrawer = true;
+                if (SolidButton("Şehir & Birim Paneli", AccentBlue)) _showCitiesDrawer = true;
+                if (SolidButton("AI Komutandan Plan Al", AccentGreen)) _showAiDrawer = true;
                 if (SolidButton("Konuşmaya Geç >>", BtnHover) && _rallyController != null) _rallyController.ForceAdvancePhase();
                 GUILayout.EndHorizontal();
             }
@@ -731,9 +777,9 @@ namespace PoliticalMayhem.UI
                             _speechDraft = presetSpeech;
                             if (_rallyController != null) _rallyController.SetLiveSpeakerTranscript(_speechDraft);
                         }
-                        if (_rallyController != null && SolidButton(_rallyController.IsMicRecording ? "🎙️ Durdur" : "🎙️ Mikrofon", _rallyController.IsMicRecording ? AccentRed : BtnHover, GUILayout.Width(86)))
+                        if (_rallyController != null && SolidButton(_rallyController.IsMicRecording ? "Kaydı Durdur" : "Mikrofon", _rallyController.IsMicRecording ? AccentRed : BtnHover, GUILayout.Width(92)))
                             _rallyController.ToggleMicrophoneCapture();
-                        if (_rallyController != null && SolidButton("✓ Konuşmayı Bitir", AccentGreen, GUILayout.Width(122)))
+                        if (_rallyController != null && SolidButton("Konuşmayı Bitir", AccentGreen, GUILayout.Width(122)))
                             _rallyController.SubmitRallySpeech(speakerId, _speechDraft);
                         GUILayout.EndHorizontal();
                     }
@@ -745,18 +791,18 @@ namespace PoliticalMayhem.UI
                     GUILayout.BeginHorizontal();
                     if (SolidButton("Sözlü Sabotaj Gönder (Cezasız)", AccentBlue) && _sabotageController != null)
                         _sabotageController.SubmitVerbalSabotage(saboteurId, _verbalSabotageDraft);
-                    if (SolidButton("💥 Fiziksel Kavga Çıkar (Riskli!)", AccentRed) && _sabotageController != null)
+                    if (SolidButton("Fiziksel Kavga Çıkar (Riskli!)", AccentRed) && _sabotageController != null)
                         _sabotageController.TriggerPhysicalSabotage(saboteurId);
                     GUILayout.EndHorizontal();
                 }
             }
             else if (phase == TurnPhase.AI_EVALUATION)
             {
-                GUILayout.Label("AŞAMA 4 — AI KONUŞMA DEĞERLENDİRMESİ & BAĞIŞ", _headerStyle);
+                GUILayout.Label("AŞAMA 4 - AI KONUŞMA DEĞERLENDİRMESİ & BAĞIŞ", _headerStyle);
                 if (_rallyController != null && _rallyController.LastSpeechEval != null)
                 {
                     SpeechEvalResult ev = _rallyController.LastSpeechEval;
-                    GUILayout.Label($"Etki: {ev.speech_effectiveness:F1}/100 | Tepki: {ev.crowd_reaction} | Bağış: +₺{_rallyController.LastDonationEarned:N0}", _subHeaderStyle);
+                    GUILayout.Label($"Etki: {ev.speech_effectiveness:F1}/100 | Tepki: {ev.crowd_reaction} | Bağış: +{_rallyController.LastDonationEarned:N0} TL", _subHeaderStyle);
                     GUILayout.Label(ev.feedback_summary, _bodyStyle);
                 }
                 else
@@ -842,7 +888,7 @@ namespace PoliticalMayhem.UI
                 else if (phase == TurnPhase.ELECTION_BRIBE)
                 {
                     GUILayout.BeginHorizontal();
-                    GUILayout.Label($"Gizli Rüşvet (Bütçe ₺{_gameManager.GetLocalPlayerState().partyBudget:N0}, maks ±%2 etki):", _bodyStyle, GUILayout.Width(315));
+                    GUILayout.Label($"Gizli Rüşvet (Bütçe {_gameManager.GetLocalPlayerState().partyBudget:N0} TL, maks +/-%2 etki):", _bodyStyle, GUILayout.Width(325));
                     _bribeAmountInput = SolidTextField(_bribeAmountInput, GUILayout.Width(80));
                     if (SolidButton("Rüşveti Onayla", BtnGold, GUILayout.Width(120)) && _authority != null)
                     {
@@ -850,7 +896,7 @@ namespace PoliticalMayhem.UI
                             _authority.RequestAllocateElectionBribe(localId, eCity, amt, out _actionFeedback);
                     }
                     GUILayout.EndHorizontal();
-                    GUILayout.Label($"A Kilitli: {_electionController.BribeLockedA} | B Kilitli: {_electionController.BribeLockedB}", _mutedStyle);
+                    GUILayout.Label($"A Kilitli: {(_electionController.BribeLockedA ? "Evet" : "Hayır")} | B Kilitli: {(_electionController.BribeLockedB ? "Evet" : "Hayır")}", _mutedStyle);
                 }
                 else if (phase == TurnPhase.ELECTION_RESULT && _electionController.LastCityResult != null)
                 {
@@ -880,25 +926,25 @@ namespace PoliticalMayhem.UI
             }
 
             GUILayout.BeginHorizontal();
-            GUILayout.Label("AI STRATEGIC COMMANDER", _headerStyle);
+            GUILayout.Label("AI STRATEJİ KOMUTANI", _headerStyle);
             GUILayout.FlexibleSpace();
             if (SolidButton("Yenile", BtnSlate, GUILayout.Width(58))) _gatewayClient.CheckHealth(null);
             GUILayout.EndHorizontal();
-            GUILayout.Label($"Gateway: {_gatewayClient.HealthStatusLabel}", _mutedStyle);
+            GUILayout.Label($"Sunucu: {_gatewayClient.HealthStatusLabel}", _mutedStyle);
 
             // Provider Switch
             GUILayout.BeginHorizontal();
             AiProviderMode mode = _commanderPanel.CurrentProviderMode;
-            if (SolidButton("Auto", mode == AiProviderMode.Auto ? AccentBlue : BtnSlate)) _commanderPanel.SetProviderMode(AiProviderMode.Auto);
-            if (SolidButton("Cloud API", mode == AiProviderMode.CloudApi ? AccentBlue : BtnSlate)) _commanderPanel.SetProviderMode(AiProviderMode.CloudApi);
+            if (SolidButton("Otomatik", mode == AiProviderMode.Auto ? AccentBlue : BtnSlate)) _commanderPanel.SetProviderMode(AiProviderMode.Auto);
+            if (SolidButton("Bulut AI", mode == AiProviderMode.CloudApi ? AccentBlue : BtnSlate)) _commanderPanel.SetProviderMode(AiProviderMode.CloudApi);
             if (SolidButton("Ollama", mode == AiProviderMode.LocalOllama ? AccentBlue : BtnSlate)) _commanderPanel.SetProviderMode(AiProviderMode.LocalOllama);
             GUILayout.EndHorizontal();
 
             GUILayout.Space(4);
             GUILayout.BeginHorizontal();
             if (SolidButton("Plan & Araçlar", _aiTabIndex == 0 ? BtnGold : BtnSlate)) _aiTabIndex = 0;
-            if (SolidButton("Validator", _aiTabIndex == 1 ? BtnGold : BtnSlate)) _aiTabIndex = 1;
-            if (SolidButton("JSON", _aiTabIndex == 2 ? BtnGold : BtnSlate))
+            if (SolidButton("Doğrulama", _aiTabIndex == 1 ? BtnGold : BtnSlate)) _aiTabIndex = 1;
+            if (SolidButton("Güvenli Durum", _aiTabIndex == 2 ? BtnGold : BtnSlate))
             {
                 _aiTabIndex = 2;
                 _commanderPanel.RefreshSnapshotPreview();
@@ -912,7 +958,7 @@ namespace PoliticalMayhem.UI
             {
                 _commanderPanel.QuestionInput = SolidTextArea(_commanderPanel.QuestionInput, GUILayout.Height(46));
                 GUI.enabled = !_commanderPanel.IsRequestInFlight;
-                if (SolidButton(_commanderPanel.IsRequestInFlight ? "AI Düşünüyor..." : "🤖 AI Komutana Sor", AccentGreen))
+                if (SolidButton(_commanderPanel.IsRequestInFlight ? "AI Düşünüyor..." : "AI Komutana Sor", AccentGreen, GUILayout.Height(28)))
                     _commanderPanel.AskCommander();
 
                 GUILayout.BeginHorizontal();
@@ -921,46 +967,56 @@ namespace PoliticalMayhem.UI
                 GUILayout.EndHorizontal();
                 GUILayout.BeginHorizontal();
                 if (SolidButton("3. Geçersiz Plan", BtnSlate)) _commanderPanel.RunPresetInvalidPlanReplay();
-                if (SolidButton("4. Prompt-Injection", AccentRed)) _commanderPanel.RunPresetPromptInjection();
+                if (SolidButton("4. Güvenlik Testi", AccentRed)) _commanderPanel.RunPresetPromptInjection();
                 GUILayout.EndHorizontal();
                 GUI.enabled = true;
 
                 GUILayout.Label(_commanderPanel.StatusMessage, _subHeaderStyle);
 
-                if (_commanderPanel.LastResponse != null)
+                CommanderAskResponse res = _commanderPanel.LastResponse;
+                bool hasRealResponse = res != null && (
+                    !string.IsNullOrWhiteSpace(res.provider_used) ||
+                    !string.IsNullOrWhiteSpace(res.explanation) ||
+                    res.security_blocked ||
+                    (res.tool_calls != null && res.tool_calls.Count > 0));
+
+                if (hasRealResponse)
                 {
-                    CommanderAskResponse res = _commanderPanel.LastResponse;
                     DrawCardSection(() =>
                     {
-                        GUILayout.Label($"Sağlayıcı: {res.provider_used} ({res.latency_ms}ms) | Güvenlik Bloğu: {res.security_blocked}", _mutedStyle);
+                        GUILayout.Label($"Sağlayıcı: {res.provider_used} ({res.latency_ms} ms) | Güvenlik Bloğu: {(res.security_blocked ? "Evet" : "Hayır")}", _mutedStyle);
                         if (!string.IsNullOrEmpty(res.explanation))
                             GUILayout.Label(res.explanation, _bodyStyle);
 
                         if (res.tool_calls != null && res.tool_calls.Count > 0)
                         {
-                            GUILayout.Label("MCP Araçları:", _headerStyle);
+                            GUILayout.Label("Kullanılan Araçlar:", _headerStyle);
                             for (int i = 0; i < res.tool_calls.Count; i++)
                             {
                                 ToolCallTraceDto tc = res.tool_calls[i];
-                                GUILayout.Label($"• {tc.tool} [{tc.status}] {tc.duration_ms}ms", _mutedStyle);
+                                GUILayout.Label($"- {tc.tool} [{tc.status}] {tc.duration_ms} ms", _mutedStyle);
                             }
                         }
 
                         if (res.rag_sources != null && res.rag_sources.Count > 0)
                         {
-                            GUILayout.Label("RAG Kaynakları:", _headerStyle);
+                            GUILayout.Label("Bilgi Kaynakları:", _headerStyle);
                             for (int i = 0; i < res.rag_sources.Count; i++)
                             {
                                 RagSourceTraceDto rs = res.rag_sources[i];
-                                GUILayout.Label($"• {rs.source_id} ({rs.score:F2})", _mutedStyle);
+                                GUILayout.Label($"- {rs.source_id} ({rs.score:F2})", _mutedStyle);
                             }
                         }
                     });
                 }
 
-                if (_commanderPanel.PendingPlan != null)
+                ActionPlan plan = _commanderPanel.PendingPlan;
+                bool hasRealPlan = plan != null && (
+                    !string.IsNullOrWhiteSpace(plan.summary) ||
+                    (plan.actions != null && plan.actions.Count > 0));
+
+                if (hasRealPlan)
                 {
-                    ActionPlan plan = _commanderPanel.PendingPlan;
                     DrawCardSection(() =>
                     {
                         GUILayout.Label($"Önerilen Plan (Güven: {plan.confidence:F2})", _headerStyle);
@@ -976,8 +1032,8 @@ namespace PoliticalMayhem.UI
                         }
 
                         GUILayout.BeginHorizontal();
-                        if (SolidButton("✓ ONAYLA", AccentGreen)) _commanderPanel.ApprovePendingPlan();
-                        if (SolidButton("✕ REDDET", AccentRed)) _commanderPanel.RejectPendingPlan();
+                        if (SolidButton("ONAYLA", AccentGreen)) _commanderPanel.ApprovePendingPlan();
+                        if (SolidButton("REDDET", AccentRed)) _commanderPanel.RejectPendingPlan();
                         if (SolidButton("Neden?", BtnSlate)) _commanderPanel.AskWhyPendingPlan();
                         GUILayout.EndHorizontal();
                     });
@@ -985,8 +1041,10 @@ namespace PoliticalMayhem.UI
             }
             else if (_aiTabIndex == 1)
             {
-                GUILayout.Label("VALIDATOR DENETİM LOGU", _headerStyle);
+                GUILayout.Label("DOĞRULAMA DENETİM KAYDI", _headerStyle);
                 IReadOnlyList<ValidationLogEntry> logs = GameActionValidator.AuditLog;
+                if (logs.Count == 0)
+                    GUILayout.Label("Henüz denetim kaydı yok.", _mutedStyle);
                 for (int i = logs.Count - 1; i >= 0; i--)
                 {
                     ValidationLogEntry e = logs[i];
@@ -994,19 +1052,21 @@ namespace PoliticalMayhem.UI
                 }
 
                 GUILayout.Space(6);
-                GUILayout.Label("ONAY GEÇMİŞİ (HITL)", _headerStyle);
+                GUILayout.Label("ONAY GEÇMİŞİ", _headerStyle);
                 IReadOnlyList<HitlDecisionRecord> decisions = _commanderPanel.DecisionHistory;
+                if (decisions.Count == 0)
+                    GUILayout.Label("Henüz onay/red kararı yok.", _mutedStyle);
                 for (int i = decisions.Count - 1; i >= 0; i--)
                 {
                     HitlDecisionRecord d = decisions[i];
-                    GUILayout.Label($"• {d.decision} ({d.playerId}): {d.summary}", _mutedStyle);
+                    GUILayout.Label($"- {d.decision} ({d.playerId}): {d.summary}", _mutedStyle);
                 }
             }
             else
             {
-                GUILayout.Label("FOG-OF-WAR SAFE SNAPSHOT", _headerStyle);
+                GUILayout.Label("GÜVENLİ OYUN DURUMU (GİZLİLİK FİLTRELİ)", _headerStyle);
                 GUILayout.Label("Rakip bütçesi ve gizli destek oranları burada ASLA yer almaz.", _mutedStyle);
-                if (SolidButton("Snapshot Yenile", BtnSlate)) _commanderPanel.RefreshSnapshotPreview();
+                if (SolidButton("Durumu Yenile", BtnSlate)) _commanderPanel.RefreshSnapshotPreview();
                 SolidTextArea(_commanderPanel.LastSnapshotJson, GUILayout.ExpandHeight(true));
             }
 
@@ -1019,7 +1079,7 @@ namespace PoliticalMayhem.UI
             DrawSolidRect(rect, BgDark, AccentGold, 2);
             GUILayout.BeginArea(new Rect(rect.x + 16, rect.y + 14, rect.width - 32, rect.height - 28));
 
-            GUILayout.Label($"🏆 BALKON KONUŞMASI — KAZANAN: {PlayerIdentity.GetDisplayName(_gameManager.MatchWinnerId)}!", _titleStyle);
+            GUILayout.Label($"BALKON KONUŞMASI - KAZANAN: {PlayerIdentity.GetDisplayName(_gameManager.MatchWinnerId)}!", _titleStyle);
             GUILayout.Label($"Şehir Skoru: Oyuncu A {_gameManager.PlayerA.citiesWon} - {_gameManager.PlayerB.citiesWon} Oyuncu B", _subHeaderStyle);
             GUILayout.Space(6);
 
@@ -1031,7 +1091,8 @@ namespace PoliticalMayhem.UI
                     for (int i = 0; i < cities.Count; i++)
                     {
                         CityState c = cities[i];
-                        GUILayout.Label($"• {c.displayName} ({c.population:N0} oy): {c.winnerSlot}", _bodyStyle);
+                        string winnerTr = c.winnerSlot == PlayerSlot.PlayerA ? "Oyuncu A" : (c.winnerSlot == PlayerSlot.PlayerB ? "Oyuncu B" : "-");
+                        GUILayout.Label($"- {c.displayName} ({c.population:N0} oy): {winnerTr}", _bodyStyle);
                     }
                 });
             }
@@ -1044,11 +1105,11 @@ namespace PoliticalMayhem.UI
 
             GUILayout.FlexibleSpace();
             GUILayout.BeginHorizontal();
-            if (SolidButton("🎉 Balkondan Konuş!", BtnGold, GUILayout.Height(34)) && _electionController != null)
+            if (SolidButton("Balkondan Konuş!", BtnGold, GUILayout.Height(34)) && _electionController != null)
                 _electionController.SubmitBalconySpeech(_balconyDraft);
-            if (SolidButton("🔄 Yeni Maç", AccentGreen, GUILayout.Height(34)))
+            if (SolidButton("Yeni Maç", AccentGreen, GUILayout.Height(34)))
                 _gameManager.StartNewMatch(_gameManager.MatchSeed + 1);
-            if (SolidButton("🏠 Ana Menü", BtnSlate, GUILayout.Height(34)))
+            if (SolidButton("Ana Menü", BtnSlate, GUILayout.Height(34)))
                 _showStartMenu = true;
             GUILayout.EndHorizontal();
 
@@ -1066,11 +1127,11 @@ namespace PoliticalMayhem.UI
             GUILayout.BeginArea(new Rect(r.x + 16, r.y + 14, r.width - 32, r.height - 28));
             GUILayout.Label("KONTROLLER & NASIL OYNANIR", _titleStyle);
             GUILayout.Space(6);
-            GUILayout.Label("• Kamera: W/A/S/D veya Ok tuşları ile gez, Mouse tekerleği ile yakınlaş, 1-6 tuşlarıyla şehirlere odaklan.", _bodyStyle);
-            GUILayout.Label("• RTS Birimleri: Sol tık veya sürükleyerek birim seç; Sağ tık ile haritaya yürüt veya düşmana saldır.", _bodyStyle);
-            GUILayout.Label("• Şehirler & Birimler: Üst bardaki [🏙️ Şehirler & Birimler] butonundan yeni birim konuşlandırabilirsin.", _bodyStyle);
-            GUILayout.Label("• AI Strategic Commander: [🤖 AI Komutan] butonundan MCP + RAG destekli öneri isteyip [✓ ONAYLA] veya [✕ REDDET] yapabilirsin.", _bodyStyle);
-            GUILayout.Label("• Gizle/Göster: F1 tuşu tüm arayüzü gizleyip haritayı tam ekran gösterir.", _bodyStyle);
+            GUILayout.Label("- Kamera: W/A/S/D veya Ok tuşları ile gez, Mouse tekerleği ile yakınlaş, 1-6 tuşlarıyla şehirlere odaklan.", _bodyStyle);
+            GUILayout.Label("- RTS Birimleri: Sol tık veya sürükleyerek birim seç; Sağ tık ile haritaya yürüt veya düşmana saldır.", _bodyStyle);
+            GUILayout.Label("- Şehirler & Birimler: Üst bardaki [Şehirler & Birimler] butonundan yeni birim konuşlandırabilirsin.", _bodyStyle);
+            GUILayout.Label("- AI Strateji Komutanı: [AI Komutan] butonundan öneri isteyip [ONAYLA] veya [REDDET] yapabilirsin.", _bodyStyle);
+            GUILayout.Label("- Gizle/Göster: F1 tuşu tüm arayüzü gizleyip haritayı tam ekran gösterir.", _bodyStyle);
             GUILayout.FlexibleSpace();
             if (SolidButton("Kapat", AccentBlue, GUILayout.Height(32)))
                 _showHelpModal = false;
@@ -1106,17 +1167,29 @@ namespace PoliticalMayhem.UI
             switch (a.action_type)
             {
                 case "DEPLOY_UNIT":
+                    return $"Birim Görevlendir: {a.unit_type} x{Mathf.Max(1, a.count)} -> {a.city_name}";
                 case "MOVE_GROUP":
                 case "MOVE_UNIT":
-                    return $"{a.action_type} • {a.unit_type} x{Mathf.Max(1, a.count)} -> {a.city_name}";
+                    return $"Birim Sevk Et: {a.unit_type} x{Mathf.Max(1, a.count)} -> {a.city_name}";
                 case "VOTE_RALLY_CITY":
-                    return $"VOTE_RALLY_CITY • Hedef Şehir: {a.city_name}";
+                    return $"Miting Şehri Oyla: {a.city_name}";
                 case "CHOOSE_SPEECH_STRATEGY":
-                    return $"CHOOSE_SPEECH_STRATEGY • İdeoloji: {a.ideology_focus} ({a.city_name})";
+                    return $"Konuşma Odağı: {a.ideology_focus} ({a.city_name})";
                 case "ALLOCATE_ELECTION_BRIBE":
-                    return $"ALLOCATE_ELECTION_BRIBE • ${a.bribe_amount:N0} -> {a.city_name}";
+                    return $"Seçim Rüşveti: {a.bribe_amount:N0} TL -> {a.city_name}";
                 default:
-                    return $"{a.action_type} • {a.city_name}";
+                    return $"{a.action_type} -> {a.city_name}";
+            }
+        }
+
+        private static string GetRoleDisplayNameTr(PlayerRole role)
+        {
+            switch (role)
+            {
+                case PlayerRole.SPEAKER: return "Konuşmacı";
+                case PlayerRole.SABOTEUR: return "Sabotajcı";
+                case PlayerRole.ELECTION_CANDIDATE: return "Seçim Adayı";
+                default: return "İzleyici";
             }
         }
 

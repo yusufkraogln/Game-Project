@@ -27,15 +27,15 @@ namespace PoliticalMayhem.AI
         [SerializeField] private AiGatewayClient _gatewayClient;
         [SerializeField] private PhotonFusionAuthority _authority;
 
-        private string _questionInput = "What should I deploy and emphasize in the next rally city given my current units and budget?";
-        private bool _isRequestInFlight;
-        private CommanderAskResponse _lastResponse;
-        private ActionPlan _pendingPlan;
-        private ValidationResult _previewValidation;
-        private AiSafeSnapshotDto _lastSnapshot;
-        private string _lastSnapshotJson = string.Empty;
-        private string _statusMessage = "AI Komutan hazır. Öneri almak için soru sorun veya demo butonunu kullanın.";
-        private readonly List<HitlDecisionRecord> _decisionHistory = new List<HitlDecisionRecord>();
+        [NonSerialized] private string _questionInput = "Mevcut birimlerim ve bütçeme göre sıradaki miting şehrinde hangi birimleri konuşlandırmalı ve neye odaklanmalıyım?";
+        [NonSerialized] private bool _isRequestInFlight;
+        [NonSerialized] private CommanderAskResponse _lastResponse;
+        [NonSerialized] private ActionPlan _pendingPlan;
+        [NonSerialized] private ValidationResult _previewValidation;
+        [NonSerialized] private AiSafeSnapshotDto _lastSnapshot;
+        [NonSerialized] private string _lastSnapshotJson = string.Empty;
+        [NonSerialized] private string _statusMessage = "AI Komutan hazır. Öneri almak için soru sorun veya hızlı test butonunu kullanın.";
+        [NonSerialized] private readonly List<HitlDecisionRecord> _decisionHistory = new List<HitlDecisionRecord>();
 
         public string QuestionInput { get => _questionInput; set => _questionInput = value; }
         public bool IsRequestInFlight => _isRequestInFlight;

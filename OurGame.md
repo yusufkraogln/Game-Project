@@ -90,7 +90,7 @@ Overall'ın etkilediği özellikler:
 
 Oyuncular yalnızca kendi Overall değerlerini kesin olarak görebilir.
 
-## 4. Miting Turları
+## 4. Miting Turlarıı
 
 Oyunda altı miting turu bulunur.
 
