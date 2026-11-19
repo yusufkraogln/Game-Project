@@ -385,12 +385,12 @@ namespace PoliticalMayhem.UI
                     return;
                 }
 
-                // 5. Election Victory / Balcony Modal OR Compact Bottom Phase Bar
+                // 5. Election Victory / Balcony Side Card (kept right-aligned so 3D Victory Balcony stays unobstructed!) OR Compact Bottom Phase Bar
                 if (_gameManager.CurrentPhase == TurnPhase.BALCONY_SPEECH)
                 {
-                    float mw = Mathf.Min(560f, w - 40f);
-                    float mh = Mathf.Min(360f, h - 110f);
-                    Rect modalRect = new Rect((w - mw) * 0.5f, (h - mh) * 0.5f + 20f, mw, mh);
+                    float mw = Mathf.Min(360f, w * 0.36f);
+                    float mh = Mathf.Min(380f, h - 104f);
+                    Rect modalRect = new Rect(w - mw - 10f, 82f, mw, mh);
                     _hudBlockingRects.Add(modalRect);
                     DrawVictoryBalconyModal(modalRect);
                 }
@@ -502,7 +502,12 @@ namespace PoliticalMayhem.UI
             // Row 1: Round/Phase, Timer Controls, Perspective, Menu
             GUILayout.BeginHorizontal();
             string phaseTr = GetPhaseDisplayNameTr(_gameManager.CurrentPhase);
-            GUILayout.Label($"TUR {_gameManager.RoundNumber}/6 | {phaseTr} ({Mathf.Max(0f, timer):F0} sn)", _headerStyle, GUILayout.Width(275));
+            string roundPrefix = _gameManager.CurrentPhase == TurnPhase.BALCONY_SPEECH
+                ? "FİNAL"
+                : (_gameManager.RoundNumber > 6
+                    ? $"SEÇİM {Mathf.Clamp(_gameManager.RoundNumber - 6, 1, 6)}/6"
+                    : $"TUR {_gameManager.RoundNumber}/6");
+            GUILayout.Label($"{roundPrefix} | {phaseTr} ({Mathf.Max(0f, timer):F0} sn)", _headerStyle, GUILayout.Width(285));
 
             if (SolidButton(paused ? "Devam Et" : "Duraklat", paused ? AccentGreen : BtnSlate, GUILayout.Width(86), GUILayout.Height(25)))
                 SetTimersPaused(!paused);

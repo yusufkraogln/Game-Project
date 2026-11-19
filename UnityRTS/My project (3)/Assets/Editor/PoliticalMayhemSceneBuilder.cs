@@ -209,6 +209,7 @@ namespace PoliticalMayhem.Editor
 
             UnitController unitController = managersGo.AddComponent<UnitController>();
             CrowdReactionController crowdReaction = managersGo.AddComponent<CrowdReactionController>();
+            RallyStageVisualController stageVisuals = managersGo.AddComponent<RallyStageVisualController>();
             SabotageAndRevolverController sabotageController = managersGo.AddComponent<SabotageAndRevolverController>();
             RallyController rallyController = managersGo.AddComponent<RallyController>();
             ElectionNightController electionController = managersGo.AddComponent<ElectionNightController>();
@@ -231,6 +232,7 @@ namespace PoliticalMayhem.Editor
             WireSerializedField(rallyController, "_gameManager", gameManager);
             WireSerializedField(rallyController, "_sabotageController", sabotageController);
             WireSerializedField(rallyController, "_crowdReaction", crowdReaction);
+            WireSerializedField(rallyController, "_stageVisuals", stageVisuals);
             WireSerializedField(rallyController, "_electionController", electionController);
             WireSerializedField(rallyController, "_gatewayClient", gatewayClient);
 

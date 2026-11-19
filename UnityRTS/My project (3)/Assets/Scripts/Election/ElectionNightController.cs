@@ -114,6 +114,10 @@ namespace PoliticalMayhem.Election
             _lastCityResult = null;
             _balconySpeechLog = string.Empty;
             _balconyFinished = false;
+            if (RallyStageVisualController.Instance != null)
+                RallyStageVisualController.Instance.ClearAllStageVisuals();
+            if (_crowdReaction != null)
+                _crowdReaction.HideCrowd();
             StartCityFinalSpeech(0);
         }
 
@@ -278,6 +282,17 @@ namespace PoliticalMayhem.Election
                         _phaseTimeRemaining = BalconySpeechDuration;
                         if (_crowdReaction != null)
                             _crowdReaction.TriggerBalconyCelebration(_gameManager.CityManager);
+                        if (RallyStageVisualController.Instance != null)
+                            RallyStageVisualController.Instance.ShowBalconyVictoryStage(_gameManager.CityManager, _gameManager.MatchWinnerId);
+
+                        UI.RtsCameraController camCtrl = FindAnyObjectByType<UI.RtsCameraController>();
+                        if (camCtrl != null)
+                        {
+                            Vector3 baskentPos = _gameManager.CityManager != null
+                                ? _gameManager.CityManager.GetCityWorldPosition(CityId.Baskent)
+                                : CityCatalog.GetWorldPosition(CityId.Baskent);
+                            camCtrl.FocusRallyStage(baskentPos, height: 10.0f, southOffset: 16.0f, pitchDeg: 28f);
+                        }
                     }
                     break;
 

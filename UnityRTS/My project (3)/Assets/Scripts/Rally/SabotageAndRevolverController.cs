@@ -121,6 +121,9 @@ namespace PoliticalMayhem.Rally
             if (_crowdReaction != null)
                 _crowdReaction.ApplyPhysicalBrawlReaction();
 
+            if (RallyStageVisualController.Instance != null)
+                RallyStageVisualController.Instance.TriggerPhysicalSabotageBrawl(_saboteurCaughtBySecurity);
+
             _gameManager.RecordPublicEvent(
                 "PHYSICAL_SABOTAGE",
                 _lastOutcomeMessage,
@@ -166,7 +169,11 @@ namespace PoliticalMayhem.Rally
             string opponentId = PlayerIdentity.GetOpponentId(expectedSpeaker);
             CityState city = _gameManager.CityManager != null ? _gameManager.CityManager.GetCity(_gameManager.ActiveRallyCity) : null;
 
-            if (suspectIndex == _guiltySuspectIndex)
+            bool hitGuilty = suspectIndex == _guiltySuspectIndex;
+            if (RallyStageVisualController.Instance != null)
+                RallyStageVisualController.Instance.PlayRevolverOutcome(suspectIndex, hitGuilty);
+
+            if (hitGuilty)
             {
                 PlayerState opponent = _gameManager.GetPlayerState(opponentId);
                 opponent.isNextSpeechBlocked = true;

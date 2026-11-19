@@ -25,6 +25,7 @@ namespace PoliticalMayhem.Rally
         [SerializeField] private PoliticalMayhemGameManager _gameManager;
         [SerializeField] private SabotageAndRevolverController _sabotageController;
         [SerializeField] private CrowdReactionController _crowdReaction;
+        [SerializeField] private RallyStageVisualController _stageVisuals;
         [SerializeField] private ElectionNightController _electionController;
         [SerializeField] private AiGatewayClient _gatewayClient;
 
@@ -114,6 +115,12 @@ namespace PoliticalMayhem.Rally
                 _sabotageController = GetComponent<SabotageAndRevolverController>() ?? FindAnyObjectByType<SabotageAndRevolverController>();
             if (_crowdReaction == null)
                 _crowdReaction = FindAnyObjectByType<CrowdReactionController>();
+            if (_stageVisuals == null)
+            {
+                _stageVisuals = GetComponent<RallyStageVisualController>() ?? FindAnyObjectByType<RallyStageVisualController>();
+                if (_stageVisuals == null)
+                    _stageVisuals = gameObject.AddComponent<RallyStageVisualController>();
+            }
             if (_electionController == null)
                 _electionController = FindAnyObjectByType<ElectionNightController>();
             if (_gatewayClient == null)
@@ -133,6 +140,10 @@ namespace PoliticalMayhem.Rally
             _gameManager.ResetRoundUnitCounters();
             if (_sabotageController != null)
                 _sabotageController.ResetForNewRally();
+            if (_stageVisuals != null)
+                _stageVisuals.ClearAllStageVisuals();
+            if (_crowdReaction != null)
+                _crowdReaction.HideCrowd();
 
             _speakerTranscript = string.Empty;
             _lastSpeechEval = null;
@@ -333,6 +344,23 @@ namespace PoliticalMayhem.Rally
                     speakerId);
             }
 
+            if (_stageVisuals != null)
+            {
+                _stageVisuals.ShowRallyStage(
+                    _gameManager.ActiveRallyCity,
+                    _gameManager.CityManager,
+                    speakerId);
+            }
+
+            UI.RtsCameraController camCtrl = FindAnyObjectByType<UI.RtsCameraController>();
+            if (camCtrl != null)
+            {
+                Vector3 cityPos = _gameManager.CityManager != null
+                    ? _gameManager.CityManager.GetCityWorldPosition(_gameManager.ActiveRallyCity)
+                    : CityCatalog.GetWorldPosition(_gameManager.ActiveRallyCity);
+                camCtrl.FocusRallyStage(cityPos, height: 9.5f, southOffset: 15.5f, pitchDeg: 32f);
+            }
+
             _phaseTimeRemaining = SpeechDuration;
             _gameManager.SetRoundAndPhase(_gameManager.RoundNumber, TurnPhase.RALLY_SPEECH);
 
@@ -497,6 +525,26 @@ namespace PoliticalMayhem.Rally
             {
                 _phaseTimeRemaining = 20f;
                 _gameManager.SetRoundAndPhase(_gameManager.RoundNumber, TurnPhase.REVOLVER_DUEL);
+
+                if (_crowdReaction != null)
+                    _crowdReaction.HideCrowd();
+                if (_stageVisuals != null)
+                {
+                    _stageVisuals.ShowRevolverDuelLineup(
+                        _gameManager.ActiveRallyCity,
+                        _gameManager.CityManager,
+                        _gameManager.GetSpeakerForRound(_gameManager.RoundNumber));
+                }
+
+                UI.RtsCameraController camCtrl = FindAnyObjectByType<UI.RtsCameraController>();
+                if (camCtrl != null)
+                {
+                    Vector3 cityPos = _gameManager.CityManager != null
+                        ? _gameManager.CityManager.GetCityWorldPosition(_gameManager.ActiveRallyCity)
+                        : CityCatalog.GetWorldPosition(_gameManager.ActiveRallyCity);
+                    camCtrl.FocusRallyStage(cityPos, height: 6.5f, southOffset: 13.5f, pitchDeg: 26f);
+                }
+
                 _gameManager.RecordPublicEvent(
                     "REVOLVER_DUEL",
                     "Yakalanan sabotajcı 5 şüphelinin arasında! Konuşmacı Revolver ile tahmin yapabilir.",

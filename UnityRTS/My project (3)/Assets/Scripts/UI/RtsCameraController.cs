@@ -243,6 +243,18 @@ namespace PoliticalMayhem.UI
             FocusCity(CityCatalog.GetWorldPosition(cityId));
         }
 
+        public void FocusRallyStage(Vector3 cityWorldPos, float height = 10.5f, float southOffset = 15.5f, float pitchDeg = 34f)
+        {
+            if (_freeCameraMode) SetFreeCameraMode(false);
+            _yaw = 0f;
+            _pitch = Mathf.Clamp(pitchDeg, 22f, 65f);
+            transform.rotation = Quaternion.Euler(_pitch, _yaw, 0f);
+            transform.position = new Vector3(
+                Mathf.Clamp(cityWorldPos.x, _xBounds.x, _xBounds.y),
+                Mathf.Clamp(height, _minHeight, _maxHeight),
+                Mathf.Clamp(cityWorldPos.z - southOffset, _zBounds.x, _zBounds.y));
+        }
+
         public void FocusCity(Vector3 cityWorldPos)
         {
             if (_freeCameraMode) SetFreeCameraMode(false);

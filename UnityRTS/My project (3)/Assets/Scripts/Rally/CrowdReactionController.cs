@@ -68,6 +68,7 @@ namespace PoliticalMayhem.Rally
                 : CityCatalog.GetWorldPosition(cityId);
 
             EnsureCrowdCreated();
+            _crowdRoot.gameObject.SetActive(true);
             _crowdRoot.position = _activeStageCenter;
 
             // Compute initial crowd sentiment from Speaker's Overall alignment with city demographics
@@ -142,6 +143,14 @@ namespace PoliticalMayhem.Rally
             ApplyCrowdColor();
         }
 
+        public void HideCrowd()
+        {
+            _balconyCelebrationActive = false;
+            ClearTemporaryProps();
+            if (_crowdRoot != null)
+                _crowdRoot.gameObject.SetActive(false);
+        }
+
         public void TriggerBalconyCelebration(CityManager cityManager)
         {
             _activeStageCenter = cityManager != null
@@ -149,6 +158,7 @@ namespace PoliticalMayhem.Rally
                 : CityCatalog.GetWorldPosition(CityId.Baskent);
 
             EnsureCrowdCreated();
+            _crowdRoot.gameObject.SetActive(true);
             _crowdRoot.position = _activeStageCenter;
             _currentReaction = CrowdReactionType.CHEER;
             _sentimentScore = 100f;
@@ -168,8 +178,8 @@ namespace PoliticalMayhem.Rally
             GameObject root = new GameObject("RallyCrowdGroup");
             _crowdRoot = root.transform;
 
-            // Arrange rally crowd in 2 clean staggered rows inside the open southern front courtyard
-            // (X in [-4.35, +4.35], Z in [-7.4, -4.6], facing north toward the Capitol) -> 0 overlaps in all 6 cities.
+            // Arrange rally crowd in 2 clean staggered rows south of the 3D Rally Stage (Z in [-7.8, -5.6])
+            // facing north toward the podium -> 0 overlaps with Capitol, Stage, or Side Buildings in all 6 cities.
             int frontRowCount = Mathf.Max(1, (_crowdNpcCount - 2) / 2);
             int backRowCount = Mathf.Max(1, _crowdNpcCount - frontRowCount);
 
@@ -179,9 +189,9 @@ namespace PoliticalMayhem.Rally
                 int rowIdx = isFront ? i : (i - frontRowCount);
                 int rowTotal = isFront ? frontRowCount : backRowCount;
                 float t = rowTotal > 1 ? (rowIdx / (float)(rowTotal - 1)) : 0.5f;
-                float arcDeg = isFront ? Mathf.Lerp(-120f, -60f, t) : Mathf.Lerp(-124f, -56f, t);
+                float arcDeg = isFront ? Mathf.Lerp(-116f, -64f, t) : Mathf.Lerp(-120f, -60f, t);
                 float angle = arcDeg * Mathf.Deg2Rad;
-                float radius = isFront ? 5.5f : 7.3f;
+                float radius = isFront ? 6.1f : 7.6f;
 
                 Vector3 localPos = new Vector3(Mathf.Cos(angle) * radius, 0.08f, Mathf.Sin(angle) * radius);
                 Vector3 inwardDir = new Vector3(-localPos.x, 0f, -localPos.z);
