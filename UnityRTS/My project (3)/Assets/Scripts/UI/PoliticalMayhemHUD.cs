@@ -458,12 +458,23 @@ namespace PoliticalMayhem.UI
 
             GUILayout.FlexibleSpace();
 
-            if (SolidButton("MAÇA BAŞLA (Yerel 2 Oyuncu / Demo Modu)", AccentGreen, GUILayout.Height(36)))
+            GUILayout.BeginHorizontal();
+            if (SolidButton("MAÇA BAŞLA (Rakip Bot'a Karşı)", AccentGreen, GUILayout.Height(36)))
             {
+                LocalOpponentBotController.EnsureInstance().BotEnabled = true;
+                _gameManager.SetLocalPlayerPerspective(PlayerIdentity.PlayerAId);
                 _showStartMenu = false;
                 _showCitiesDrawer = true;
                 SetTimersPaused(false);
             }
+            if (SolidButton("2 Oyuncu (Manuel)", BtnHover, GUILayout.Width(160), GUILayout.Height(36)))
+            {
+                LocalOpponentBotController.EnsureInstance().BotEnabled = false;
+                _showStartMenu = false;
+                _showCitiesDrawer = true;
+                SetTimersPaused(false);
+            }
+            GUILayout.EndHorizontal();
 
             GUILayout.Space(5);
             GUILayout.BeginHorizontal();
@@ -525,13 +536,20 @@ namespace PoliticalMayhem.UI
 
             GUILayout.FlexibleSpace();
 
+            LocalOpponentBotController botCtrl = LocalOpponentBotController.EnsureInstance();
+            bool botOn = botCtrl != null && botCtrl.BotEnabled;
+            if (SolidButton(botOn ? "Bot: Açık" : "Bot: Kapalı", botOn ? AccentGreen : BtnSlate, GUILayout.Width(86), GUILayout.Height(25)))
+            {
+                if (botCtrl != null) botCtrl.BotEnabled = !botCtrl.BotEnabled;
+            }
+
             bool isA = _gameManager.LocalPlayerId == PlayerIdentity.PlayerAId;
-            if (SolidButton("Oyuncu A", isA ? AccentBlue : BtnSlate, GUILayout.Width(82), GUILayout.Height(25)))
+            if (SolidButton("Oyuncu A", isA ? AccentBlue : BtnSlate, GUILayout.Width(78), GUILayout.Height(25)))
                 _gameManager.SetLocalPlayerPerspective(PlayerIdentity.PlayerAId);
-            if (SolidButton("Oyuncu B", !isA ? AccentRed : BtnSlate, GUILayout.Width(82), GUILayout.Height(25)))
+            if (SolidButton("Oyuncu B", !isA ? AccentRed : BtnSlate, GUILayout.Width(78), GUILayout.Height(25)))
                 _gameManager.SetLocalPlayerPerspective(PlayerIdentity.PlayerBId);
 
-            if (SolidButton("Menü", BtnSlate, GUILayout.Width(60), GUILayout.Height(25)))
+            if (SolidButton("Menü", BtnSlate, GUILayout.Width(54), GUILayout.Height(25)))
             {
                 _showStartMenu = true;
                 SetTimersPaused(true);

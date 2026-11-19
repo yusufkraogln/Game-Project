@@ -218,6 +218,7 @@ namespace PoliticalMayhem.Editor
             PhotonFusionAuthority authority = managersGo.AddComponent<PhotonFusionAuthority>();
             AiGatewayClient gatewayClient = managersGo.AddComponent<AiGatewayClient>();
             AiCommanderPanel commanderPanel = managersGo.AddComponent<AiCommanderPanel>();
+            managersGo.AddComponent<LocalOpponentBotController>();
             PoliticalMayhemHUD hud = managersGo.AddComponent<PoliticalMayhemHUD>();
 
             WireSerializedField(gameManager, "_cityManager", cityManager);
