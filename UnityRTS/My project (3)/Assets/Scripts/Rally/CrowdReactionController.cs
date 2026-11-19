@@ -141,6 +141,11 @@ namespace PoliticalMayhem.Rally
                 : eval.feedback_summary;
 
             ApplyCrowdColor();
+
+            if (_currentReaction == CrowdReactionType.CHEER)
+                GameAudioManager.EnsureInstance().PlayCrowdCheer();
+            else if (_currentReaction == CrowdReactionType.BOO || _currentReaction == CrowdReactionType.PROTEST || _currentReaction == CrowdReactionType.THROW_OBJECTS)
+                GameAudioManager.EnsureInstance().PlayCrowdBoo();
         }
 
         public void HideCrowd()
@@ -165,6 +170,7 @@ namespace PoliticalMayhem.Rally
             _balconyCelebrationActive = true;
             _lastFeedback = "Balkon Konuşması! Kalabalık çılgınca tezahürat yapıyor ve konfetiler yağıyor!";
             ApplyCrowdColor();
+            GameAudioManager.EnsureInstance().PlayBalconyFanfare();
         }
 
         private void EnsureCrowdCreated()

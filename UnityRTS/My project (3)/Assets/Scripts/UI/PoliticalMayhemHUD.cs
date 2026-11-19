@@ -283,7 +283,10 @@ namespace PoliticalMayhem.UI
             GUI.color = Color.white;
             bool clicked = GUILayout.Button(label, _buttonStyle, options);
             if (clicked)
+            {
                 GUIUtility.keyboardControl = 0;
+                GameAudioManager.EnsureInstance().PlayUiClick();
+            }
             GUI.backgroundColor = prevBg;
             GUI.color = prevCol;
             return clicked;
@@ -552,14 +555,19 @@ namespace PoliticalMayhem.UI
             if (_cameraController != null)
             {
                 bool freeCam = _cameraController.IsFreeCameraMode;
-                if (SolidButton(freeCam ? "Serbest [C]" : "Harita [C]", freeCam ? BtnGold : BtnSlate, GUILayout.Width(90), GUILayout.Height(25)))
+                if (SolidButton(freeCam ? "Serbest [C]" : "Harita [C]", freeCam ? BtnGold : BtnSlate, GUILayout.Width(86), GUILayout.Height(25)))
                     _cameraController.ToggleFreeCameraMode();
             }
 
-            if (SolidButton("?", BtnSlate, GUILayout.Width(32), GUILayout.Height(25)))
+            GameAudioManager audioMgr = GameAudioManager.EnsureInstance();
+            bool isMuted = audioMgr != null && audioMgr.IsMuted;
+            if (SolidButton(isMuted ? "Sessiz" : "Ses Açık", isMuted ? AccentRed : BtnSlate, GUILayout.Width(76), GUILayout.Height(25)))
+                audioMgr?.ToggleMute();
+
+            if (SolidButton("?", BtnSlate, GUILayout.Width(30), GUILayout.Height(25)))
                 _showHelpModal = !_showHelpModal;
 
-            if (SolidButton("F1", BtnSlate, GUILayout.Width(38), GUILayout.Height(25)))
+            if (SolidButton("F1", BtnSlate, GUILayout.Width(34), GUILayout.Height(25)))
                 _hudVisible = false;
             GUILayout.EndHorizontal();
 

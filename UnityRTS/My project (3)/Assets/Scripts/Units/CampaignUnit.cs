@@ -63,10 +63,15 @@ namespace PoliticalMayhem.Units
         private Transform _healthBarFill;
         private Renderer _healthBarFillRenderer;
         private Vector3 _bodyBaseLocalPos;
+        private Quaternion _bodyBaseLocalRot = Quaternion.identity;
         private Vector3 _bodyBaseLocalScale = Vector3.one;
         private bool _bodyBaseCached;
         private float _attackPulseTimer;
-        private const float AttackPulseDuration = 0.18f;
+        private float _hitRecoilTimer;
+        private float _walkCyclePhase;
+        private bool _movedThisFrame;
+        private const float AttackPulseDuration = 0.22f;
+        private const float HitRecoilDuration = 0.16f;
 
         public int UnitId => _unitId;
         public string OwnerPlayerId => _ownerPlayerId;
@@ -169,6 +174,7 @@ namespace PoliticalMayhem.Units
             if (_visualPulseRoot != null)
             {
                 _bodyBaseLocalPos = _visualPulseRoot.localPosition;
+                _bodyBaseLocalRot = _visualPulseRoot.localRotation;
                 _bodyBaseLocalScale = _visualPulseRoot.localScale;
                 _bodyBaseCached = true;
 
@@ -322,10 +328,11 @@ namespace PoliticalMayhem.Units
             if (!IsAlive) return;
 
             _cooldownTimer = Mathf.Max(0f, _cooldownTimer - Time.deltaTime);
+            _movedThisFrame = false;
 
-            UpdateAttackPulseVisual();
             UpdateLocationAndCampaignPresence();
             TickCombatAndMovement();
+            UpdateLocomotionAndCombatVisuals();
         }
 
         private void LateUpdate()
@@ -441,6 +448,8 @@ namespace PoliticalMayhem.Units
 
             Vector3 velocity = combined.normalized * _moveSpeed;
             Vector3 nextPos = SanitizePlayfieldPosition(transform.position + velocity * Time.deltaTime);
+            if ((nextPos - transform.position).sqrMagnitude > 0.000001f)
+                _movedThisFrame = true;
             transform.position = nextPos;
             FaceTowards(nextPos + velocity);
         }
@@ -566,30 +575,99 @@ namespace PoliticalMayhem.Units
         {
             _cooldownTimer = _attackCooldown;
             _attackPulseTimer = AttackPulseDuration;
+
+            bool isRanged = _unitType == UnitType.Propagandist || _unitType == UnitType.RallyConvoy;
+            if (isRanged && target != null && _isVisuallyVisible)
+            {
+                SpawnRangedCombatPulse(target.transform.position + Vector3.up * 0.75f);
+            }
+
+            if (_isVisuallyVisible)
+                GameAudioManager.EnsureInstance().PlayCombatHit(isRanged);
+
             float dmg = CombatResolver.ComputeEffectiveDamage(this, target);
             target.ReceiveDamage(dmg, this);
         }
 
-        private void UpdateAttackPulseVisual()
+        private void SpawnRangedCombatPulse(Vector3 targetWorldPos)
+        {
+            GameObject orb = GameObject.CreatePrimitive(PrimitiveType.Sphere);
+            orb.name = "BroadcastPulseOrb";
+            Collider col = orb.GetComponent<Collider>();
+            if (col != null) Destroy(col);
+            Vector3 startPos = transform.position + Vector3.up * (_unitType == UnitType.RallyConvoy ? 1.25f : 0.85f);
+            orb.transform.position = startPos;
+            orb.transform.localScale = Vector3.one * 0.24f;
+            Color teamColor = _ownerPlayerId == PlayerIdentity.PlayerBId
+                ? new Color(1.0f, 0.36f, 0.28f)
+                : new Color(0.30f, 0.78f, 1.0f);
+            MaterialHelper.ApplyColor(orb.GetComponent<Renderer>(), teamColor, 0.45f);
+
+            TransientProjectileEffect fx = orb.AddComponent<TransientProjectileEffect>();
+            fx.Launch(startPos, targetWorldPos, 0.22f);
+        }
+
+        private void UpdateLocomotionAndCombatVisuals()
         {
             Transform pulseTf = _visualPulseRoot != null
                 ? _visualPulseRoot
                 : (_bodyRenderer != null ? _bodyRenderer.transform : null);
             if (pulseTf == null || !_bodyBaseCached) return;
 
+            Vector3 posOffset = Vector3.zero;
+            Vector3 rotEuler = Vector3.zero;
+            Vector3 scaleMul = Vector3.one;
+
+            // 1. Walking stride / vehicle driving animation (or subtle idle breathing)
+            if (_movedThisFrame)
+            {
+                float speedFreq = _unitType == UnitType.RallyConvoy ? 15f : 11.5f;
+                _walkCyclePhase += Time.deltaTime * speedFreq;
+                if (_unitType == UnitType.RallyConvoy)
+                {
+                    posOffset.y += Mathf.Abs(Mathf.Sin(_walkCyclePhase)) * 0.035f;
+                    rotEuler.x += -2.5f;
+                    rotEuler.z += Mathf.Sin(_walkCyclePhase * 0.6f) * 2.2f;
+                }
+                else
+                {
+                    posOffset.y += Mathf.Abs(Mathf.Sin(_walkCyclePhase)) * 0.11f;
+                    rotEuler.x += 7.5f;
+                    rotEuler.z += Mathf.Sin(_walkCyclePhase) * 9.0f;
+                    rotEuler.y += Mathf.Cos(_walkCyclePhase) * 5.5f;
+                }
+            }
+            else
+            {
+                float breath = Mathf.Sin(Time.time * 2.4f + _unitId * 0.9f) * 0.015f;
+                scaleMul = new Vector3(1f - breath * 0.5f, 1f + breath, 1f - breath * 0.5f);
+            }
+
+            // 2. Attack lunge / broadcast recoil
             if (_attackPulseTimer > 0f)
             {
                 _attackPulseTimer = Mathf.Max(0f, _attackPulseTimer - Time.deltaTime);
                 float normalized = _attackPulseTimer / AttackPulseDuration;
                 float wave = Mathf.Sin(normalized * Mathf.PI);
-                pulseTf.localPosition = _bodyBaseLocalPos + Vector3.forward * (0.28f * wave);
-                pulseTf.localScale = _bodyBaseLocalScale * (1f + 0.14f * wave);
+                posOffset += Vector3.forward * (0.34f * wave);
+                rotEuler.x += (_unitType == UnitType.RallyConvoy ? -5f : 16f) * wave;
+                scaleMul *= (1f + 0.14f * wave);
             }
-            else
+
+            // 3. Damage hit recoil & squash
+            if (_hitRecoilTimer > 0f)
             {
-                pulseTf.localPosition = _bodyBaseLocalPos;
-                pulseTf.localScale = _bodyBaseLocalScale;
+                _hitRecoilTimer = Mathf.Max(0f, _hitRecoilTimer - Time.deltaTime);
+                float norm = _hitRecoilTimer / HitRecoilDuration;
+                float wave = Mathf.Sin(norm * Mathf.PI);
+                posOffset += Vector3.back * (0.20f * wave);
+                rotEuler.x += -18f * wave;
+                scaleMul = new Vector3(scaleMul.x * (1f + 0.16f * wave), scaleMul.y * (1f - 0.12f * wave), scaleMul.z * (1f + 0.16f * wave));
             }
+
+            pulseTf.localPosition = _bodyBaseLocalPos + posOffset;
+            pulseTf.localRotation = _bodyBaseLocalRot * Quaternion.Euler(rotEuler);
+            pulseTf.localScale = Vector3.Scale(_bodyBaseLocalScale, scaleMul);
         }
 
         private void RefreshHealthBarVisual()
@@ -622,16 +700,51 @@ namespace PoliticalMayhem.Units
         {
             if (!IsAlive) return;
             _currentHealth = Mathf.Max(0f, _currentHealth - Mathf.Max(0f, damage));
+            _hitRecoilTimer = HitRecoilDuration;
             RefreshHealthBarVisual();
             OnUnitDamaged?.Invoke(this, attacker, damage);
 
             if (_currentHealth <= 0f)
             {
+                if (_isVisuallyVisible)
+                    GameAudioManager.EnsureInstance().PlayUnitDefeated();
                 RefreshHealthBarVisual();
                 OnUnitDefeated?.Invoke(this, attacker);
                 gameObject.SetActive(false);
                 Destroy(gameObject, 0.05f);
             }
+        }
+    }
+
+    /// <summary>
+    /// Lightweight visual projectile orb for ranged Propagandist/Convoy attacks.
+    /// </summary>
+    public class TransientProjectileEffect : MonoBehaviour
+    {
+        private Vector3 _start;
+        private Vector3 _end;
+        private float _duration = 0.22f;
+        private float _elapsed;
+
+        public void Launch(Vector3 startPos, Vector3 endPos, float duration)
+        {
+            _start = startPos;
+            _end = endPos;
+            _duration = Mathf.Max(0.08f, duration);
+            _elapsed = 0f;
+            transform.position = _start;
+        }
+
+        private void Update()
+        {
+            _elapsed += Time.deltaTime;
+            float t = Mathf.Clamp01(_elapsed / _duration);
+            Vector3 pos = Vector3.Lerp(_start, _end, t);
+            pos.y += Mathf.Sin(t * Mathf.PI) * 0.45f;
+            transform.position = pos;
+            transform.localScale = Vector3.one * Mathf.Lerp(0.24f, 0.42f, t);
+            if (t >= 1f)
+                Destroy(gameObject);
         }
     }
 }

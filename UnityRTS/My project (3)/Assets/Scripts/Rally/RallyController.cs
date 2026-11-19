@@ -482,6 +482,8 @@ namespace PoliticalMayhem.Rally
                     eval,
                     _gameManager.OverallManager,
                     totalSabotagePenalty);
+                if (_lastDonationEarned > 0f)
+                    GameAudioManager.EnsureInstance().PlayDonationEarned();
             }
 
             if (city != null)

@@ -124,6 +124,8 @@ namespace PoliticalMayhem.Rally
             if (RallyStageVisualController.Instance != null)
                 RallyStageVisualController.Instance.TriggerPhysicalSabotageBrawl(_saboteurCaughtBySecurity);
 
+            GameAudioManager.EnsureInstance().PlayBrawl();
+
             _gameManager.RecordPublicEvent(
                 "PHYSICAL_SABOTAGE",
                 _lastOutcomeMessage,
@@ -172,6 +174,7 @@ namespace PoliticalMayhem.Rally
             bool hitGuilty = suspectIndex == _guiltySuspectIndex;
             if (RallyStageVisualController.Instance != null)
                 RallyStageVisualController.Instance.PlayRevolverOutcome(suspectIndex, hitGuilty);
+            GameAudioManager.EnsureInstance().PlayRevolverShot(hitGuilty);
 
             if (hitGuilty)
             {

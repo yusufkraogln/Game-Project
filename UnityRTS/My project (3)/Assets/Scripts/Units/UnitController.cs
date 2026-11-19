@@ -232,6 +232,8 @@ namespace PoliticalMayhem.Units
             CampaignUnit hitUnit = hit.collider.GetComponentInParent<CampaignUnit>();
             if (hitUnit != null && hitUnit.IsAlive && hitUnit.OwnerPlayerId != localId && hitUnit.IsVisuallyVisible)
             {
+                SpawnGroundPing(hitUnit.transform.position, new Color(0.95f, 0.25f, 0.22f));
+                GameAudioManager.EnsureInstance().PlayUnitOrder();
                 if (PhotonFusionAuthority.Instance != null)
                 {
                     PhotonFusionAuthority.Instance.RequestAttackOrder(localId, selectedIds, hitUnit.UnitId);
@@ -244,6 +246,8 @@ namespace PoliticalMayhem.Units
             }
 
             Vector3 targetPoint = new Vector3(hit.point.x, 0f, hit.point.z);
+            SpawnGroundPing(targetPoint, new Color(0.25f, 0.92f, 0.50f));
+            GameAudioManager.EnsureInstance().PlayUnitOrder();
             CityId nearestCity = _gameManager.CityManager != null
                 ? _gameManager.CityManager.GetClosestCity(targetPoint)
                 : CityId.Baskent;
@@ -366,6 +370,8 @@ namespace PoliticalMayhem.Units
             }
 
             player.IncrementDeployedThisRound(unitType, spawned);
+            if (spawned > 0)
+                GameAudioManager.EnsureInstance().PlayUnitDeploy();
             _gameManager.RecordPublicEvent(
                 "UNIT_DEPLOYED",
                 $"{PlayerIdentity.GetDisplayName(normalized)} {CityCatalog.GetDisplayName(cityId)} bölgesine {spawned}x {UnitCatalog.GetDisplayNameTr(unitType)} gönderdi.",
@@ -815,6 +821,18 @@ namespace PoliticalMayhem.Units
             return part;
         }
 
+        private static void SpawnGroundPing(Vector3 worldPos, Color color)
+        {
+            GameObject ping = GameObject.CreatePrimitive(PrimitiveType.Cylinder);
+            ping.name = "OrderPingRing";
+            Collider col = ping.GetComponent<Collider>();
+            if (col != null) Destroy(col);
+            ping.transform.position = new Vector3(worldPos.x, 0.11f, worldPos.z);
+            ping.transform.localScale = new Vector3(0.4f, 0.025f, 0.4f);
+            MaterialHelper.ApplyColor(ping.GetComponent<Renderer>(), color, 0.4f);
+            ping.AddComponent<TransientGroundPing>();
+        }
+
         private void OnGUI()
         {
             if (!_isDragging) return;
@@ -842,6 +860,26 @@ namespace PoliticalMayhem.Units
             GUI.DrawTexture(new Rect(rect.x, rect.y, 2f, rect.height), _whiteTex);
             GUI.DrawTexture(new Rect(rect.xMax - 2f, rect.y, 2f, rect.height), _whiteTex);
             GUI.color = prev;
+        }
+    }
+
+    /// <summary>
+    /// Expanding RTS right-click destination / attack target ground ring.
+    /// </summary>
+    public class TransientGroundPing : MonoBehaviour
+    {
+        private float _elapsed;
+        private const float Duration = 0.45f;
+
+        private void Update()
+        {
+            _elapsed += Time.deltaTime;
+            float t = Mathf.Clamp01(_elapsed / Duration);
+            float radius = Mathf.Lerp(0.45f, 2.2f, t);
+            float height = Mathf.Lerp(0.03f, 0.004f, t);
+            transform.localScale = new Vector3(radius, height, radius);
+            if (t >= 1f)
+                Destroy(gameObject);
         }
     }
 }

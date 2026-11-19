@@ -183,6 +183,7 @@ namespace PoliticalMayhem.Editor
             GameObject camGo = new GameObject("Main Camera");
             camGo.tag = "MainCamera";
             Camera cam = camGo.AddComponent<Camera>();
+            camGo.AddComponent<AudioListener>();
             cam.clearFlags = CameraClearFlags.SolidColor;
             cam.backgroundColor = new Color(0.54f, 0.73f, 0.90f);
             cam.farClipPlane = 450f;
@@ -203,6 +204,7 @@ namespace PoliticalMayhem.Editor
             // 8. Core, Rally, Election, Networking, AI, and HUD Managers
             GameObject managersGo = new GameObject("GameManagers");
             PoliticalMayhemGameManager gameManager = managersGo.AddComponent<PoliticalMayhemGameManager>();
+            managersGo.AddComponent<GameAudioManager>();
             CityManager cityManager = managersGo.AddComponent<CityManager>();
             OverallManager overallManager = managersGo.AddComponent<OverallManager>();
             PartyBudgetManager budgetManager = managersGo.AddComponent<PartyBudgetManager>();

@@ -229,11 +229,16 @@ namespace PoliticalMayhem.Core
 
         public void SetRoundAndPhase(int roundNumber, TurnPhase newPhase)
         {
+            bool changed = _currentPhase != newPhase || _roundNumber != roundNumber;
             _roundNumber = Mathf.Clamp(roundNumber, 0, 12);
             _currentPhase = newPhase;
             if (_cityManager != null)
             {
                 _cityManager.RefreshAllVisuals(_hasActiveRallyCity ? _activeRallyCity : (CityId?)null);
+            }
+            if (changed && Application.isPlaying && newPhase != TurnPhase.BALCONY_SPEECH && GameAudioManager.Instance != null)
+            {
+                GameAudioManager.Instance.PlayPhaseTransition();
             }
             OnPhaseChanged?.Invoke(_roundNumber, _currentPhase);
         }
