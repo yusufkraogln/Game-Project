@@ -447,8 +447,20 @@ namespace PoliticalMayhem.Core
             if (Camera.main != null)
             {
                 Camera.main.clearFlags = CameraClearFlags.SolidColor;
-                Camera.main.backgroundColor = new Color(0.04f, 0.05f, 0.07f);
+                Camera.main.backgroundColor = new Color(0.54f, 0.73f, 0.90f);
+                if (Camera.main.farClipPlane < 450f)
+                    Camera.main.farClipPlane = 450f;
             }
+
+            RenderSettings.ambientMode = UnityEngine.Rendering.AmbientMode.Trilight;
+            RenderSettings.ambientSkyColor = new Color(0.62f, 0.76f, 0.90f);
+            RenderSettings.ambientEquatorColor = new Color(0.54f, 0.60f, 0.56f);
+            RenderSettings.ambientGroundColor = new Color(0.28f, 0.34f, 0.26f);
+            RenderSettings.fog = true;
+            RenderSettings.fogMode = FogMode.Linear;
+            RenderSettings.fogColor = new Color(0.60f, 0.77f, 0.91f);
+            RenderSettings.fogStartDistance = 135f;
+            RenderSettings.fogEndDistance = 320f;
 
             MapEnvironmentVisuals envVisuals = FindAnyObjectByType<MapEnvironmentVisuals>();
             if (envVisuals != null)
@@ -461,7 +473,7 @@ namespace PoliticalMayhem.Core
             {
                 if (mapGround.TryGetComponent(out Renderer groundRend))
                 {
-                    MaterialHelper.ApplyColor(groundRend, new Color(0.10f, 0.11f, 0.14f), 0.08f);
+                    MaterialHelper.ApplyColor(groundRend, new Color(0.31f, 0.46f, 0.28f), 0.06f);
                 }
 
                 MeshFilter mf = mapGround.GetComponent<MeshFilter>();
@@ -483,7 +495,7 @@ namespace PoliticalMayhem.Core
             GameObject ocean = GameObject.Find("OceanWater");
             if (ocean != null && ocean.TryGetComponent(out Renderer oceanRend))
             {
-                MaterialHelper.ApplyColor(oceanRend, new Color(0.05f, 0.06f, 0.08f), 0.08f);
+                MaterialHelper.ApplyColor(oceanRend, new Color(0.11f, 0.36f, 0.54f), 0.55f);
             }
 
             Renderer[] allRenderers = FindObjectsByType<Renderer>();
@@ -495,19 +507,19 @@ namespace PoliticalMayhem.Core
 
                 if (rend.gameObject.name == "MapGround")
                 {
-                    MaterialHelper.ApplyColor(rend, new Color(0.10f, 0.11f, 0.14f), 0.08f);
+                    MaterialHelper.ApplyColor(rend, new Color(0.31f, 0.46f, 0.28f), 0.06f);
                 }
                 else if (rend.gameObject.name == "CityPlaza")
                 {
-                    MaterialHelper.ApplyColor(rend, new Color(0.28f, 0.31f, 0.36f), 0.12f);
+                    MaterialHelper.ApplyColor(rend, new Color(0.70f, 0.72f, 0.74f), 0.10f);
                 }
                 else if (rend is MeshRenderer || rend is SkinnedMeshRenderer)
                 {
-                    // Never overwrite already URP-valid (e.g. textured .fbx) materials on CitiesRoot/UnitsRoot
+                    // Never overwrite already URP-valid (e.g. textured .fbx/.obj) materials on CitiesRoot/UnitsRoot
                     if (MaterialHelper.IsValidForActivePipeline(rend.sharedMaterial))
                         continue;
 
-                    MaterialHelper.ApplyColor(rend, new Color(0.38f, 0.42f, 0.48f), 0.15f);
+                    MaterialHelper.ApplyColor(rend, new Color(0.55f, 0.58f, 0.62f), 0.15f);
                 }
             }
         }

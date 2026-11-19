@@ -14,10 +14,10 @@ namespace PoliticalMayhem.UI
         [SerializeField] private float _freeFlySpeed = 28f;
         [SerializeField] private float _zoomSpeed = 12f;
         [SerializeField] private float _minHeight = 6f;
-        [SerializeField] private float _maxHeight = 105f;
+        [SerializeField] private float _maxHeight = 125f;
         [SerializeField] private float _orbitSpeed = 0.28f;
-        [SerializeField] private Vector2 _xBounds = new Vector2(-105f, 105f);
-        [SerializeField] private Vector2 _zBounds = new Vector2(-115f, 95f);
+        [SerializeField] private Vector2 _xBounds = new Vector2(-115f, 115f);
+        [SerializeField] private Vector2 _zBounds = new Vector2(-135f, 100f);
 
         private bool _freeCameraMode;
         private float _yaw;
@@ -36,15 +36,15 @@ namespace PoliticalMayhem.UI
         private void Start()
         {
             // Ensure expanded bounds apply even if serialized in an older scene file
-            if (_maxHeight < 105f) _maxHeight = 105f;
-            if (_xBounds.y < 105f) _xBounds = new Vector2(-105f, 105f);
-            if (_zBounds.x > -115f || _zBounds.y < 95f) _zBounds = new Vector2(-115f, 95f);
+            if (_maxHeight < 125f) _maxHeight = 125f;
+            if (_xBounds.y < 115f) _xBounds = new Vector2(-115f, 115f);
+            if (_zBounds.x > -135f || _zBounds.y < 100f) _zBounds = new Vector2(-135f, 100f);
 
             if (transform.position.y < _minHeight ||
-                (Mathf.Abs(transform.position.x) < 0.1f && transform.position.y < 52f && transform.position.z >= -35f))
+                (Mathf.Abs(transform.position.x) < 0.1f && transform.position.y < 68f && transform.position.z >= -45f))
             {
-                transform.position = new Vector3(0f, 60f, -38f);
-                transform.rotation = Quaternion.Euler(54f, 0f, 0f);
+                transform.position = new Vector3(0f, 76f, -54f);
+                transform.rotation = Quaternion.Euler(53f, 0f, 0f);
             }
 
             Vector3 euler = transform.eulerAngles;
@@ -95,9 +95,9 @@ namespace PoliticalMayhem.UI
         {
             _freeCameraMode = false;
             _yaw = 0f;
-            _pitch = 54f;
+            _pitch = 53f;
             transform.rotation = Quaternion.Euler(_pitch, _yaw, 0f);
-            transform.position = new Vector3(0f, 60f, -38f);
+            transform.position = new Vector3(0f, 76f, -54f);
         }
 
         private void HandleModeAndResetHotkeys()

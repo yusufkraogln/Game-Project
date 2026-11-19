@@ -11,11 +11,11 @@ namespace PoliticalMayhem.Core
     /// </summary>
     public static class CityVisualBuilder
     {
-        public const float PlazaDiameter = 14.5f;
-        public const float StatusRingDiameter = 16.5f;
-        public const float CapitolPedestalDiameter = 4.6f;
-        private const float PlazaTopY = 0.26f;
-        private const float PedestalTopY = 0.28f;
+        public const float PlazaDiameter = 21.0f;
+        public const float StatusRingDiameter = 23.0f;
+        public const float CapitolPedestalDiameter = 6.0f;
+        private const float PlazaTopY = 0.08f;
+        private const float PedestalTopY = 0.14f;
 
         public struct CityModelSpec
         {
@@ -87,7 +87,8 @@ namespace PoliticalMayhem.Core
             "HarborPier", "DepotBlock",
             "Smokestack_0", "Smokestack_1",
             "TerraceA", "TerraceB",
-            "ClockTower"
+            "ClockTower",
+            "Mountain_0", "Mountain_1", "Mountain_2"
         };
 
         public static readonly (CityId from, CityId to)[] HighwayRoutes =
@@ -108,6 +109,8 @@ namespace PoliticalMayhem.Core
         public const string IndustrialTex = "Models/Cities/Industrial/Textures/colormap";
         public const string SuburbanTex = "Models/Cities/Suburban/Textures/colormap";
         public const string RoadsTex = "Models/Props/Roads/Textures/colormap";
+        public const string NatureTex = "Models/Nature/nature_palette";
+        public const string HarborTex = "Models/Props/Harbor/Textures/colormap";
 
         public static bool PopulateCityLandmarks(
             CityId cityId,
@@ -117,7 +120,7 @@ namespace PoliticalMayhem.Core
         {
             if (cityRoot == null) return false;
 
-            UpgradeCapitolPedestalAndPlaza(cityRoot);
+            UpgradeCapitolPedestalAndPlaza(cityRoot, cityId);
 
             int instantiatedCount = 0;
 
@@ -207,46 +210,58 @@ namespace PoliticalMayhem.Core
         /// Converts any tall grey cube CityCapitol into a sleek low ceremonial pedestal so the 3D
         /// central landmark stands prominently while CityHubMarker.hubRenderer still tints on capture.
         /// </summary>
-        public static void UpgradeCapitolPedestalAndPlaza(Transform cityRoot)
+        public static void UpgradeCapitolPedestalAndPlaza(Transform cityRoot, CityId? cityIdOverride = null)
         {
             if (cityRoot == null) return;
 
             Transform plazaTf = cityRoot.Find("CityPlaza");
             if (plazaTf != null)
             {
-                plazaTf.localPosition = new Vector3(0f, 0.12f, 0f);
-                plazaTf.localScale = new Vector3(PlazaDiameter, 0.16f, PlazaDiameter);
+                plazaTf.localPosition = new Vector3(0f, 0.04f, 0f);
+                plazaTf.localScale = new Vector3(PlazaDiameter, 0.08f, PlazaDiameter);
             }
 
             Transform ringTf = cityRoot.Find("StatusRing");
             if (ringTf != null)
             {
-                ringTf.localPosition = new Vector3(0f, 0.06f, 0f);
-                ringTf.localScale = new Vector3(StatusRingDiameter, 0.08f, StatusRingDiameter);
+                ringTf.localPosition = new Vector3(0f, 0.02f, 0f);
+                ringTf.localScale = new Vector3(StatusRingDiameter, 0.04f, StatusRingDiameter);
             }
 
             Transform capitolTf = cityRoot.Find("CityCapitol");
             if (capitolTf != null)
             {
-                capitolTf.localPosition = new Vector3(0f, 0.20f, 0f);
-                capitolTf.localScale = new Vector3(CapitolPedestalDiameter, 0.16f, CapitolPedestalDiameter);
+                capitolTf.localPosition = new Vector3(0f, 0.07f, 0f);
+                capitolTf.localScale = new Vector3(CapitolPedestalDiameter, 0.14f, CapitolPedestalDiameter);
+            }
+
+            float labelY = 12.2f;
+            if (cityIdOverride.HasValue)
+            {
+                labelY = Mathf.Max(9.5f, GetCapitolLandmarkSpec(cityIdOverride.Value).targetHeight + 3.2f);
+            }
+            else if (cityRoot.TryGetComponent(out CityHubMarker marker))
+            {
+                labelY = Mathf.Max(9.5f, GetCapitolLandmarkSpec(marker.cityId).targetHeight + 3.2f);
             }
 
             Transform labelTf = cityRoot.Find("CityLabel");
             if (labelTf != null)
             {
-                labelTf.localPosition = new Vector3(0f, 8.2f, 0f);
+                labelTf.localPosition = new Vector3(0f, labelY, 0f);
                 TextMesh tm = labelTf.GetComponent<TextMesh>();
                 if (tm != null)
                 {
-                    tm.characterSize = 0.21f;
-                    tm.fontSize = 46;
+                    tm.characterSize = 0.24f;
+                    tm.fontSize = 48;
+                    tm.color = new Color(0.98f, 0.99f, 1.0f);
                 }
             }
         }
 
         /// <summary>
-        /// Places roadside streetlamps, highway signs, and boulevard trees along a connected highway strip.
+        /// Places roadside streetlamps, overhead highway signs (centered cleanly over roads),
+        /// and boulevard trees along a connected highway strip.
         /// </summary>
         public static void PopulateRoadCorridorProps(
             Transform roadsRoot,
@@ -261,7 +276,7 @@ namespace PoliticalMayhem.Core
             Vector3 b = CityCatalog.GetWorldPosition(toCity);
             Vector3 delta = b - a;
             float dist = delta.magnitude;
-            if (dist < 24f) return;
+            if (dist < 28f) return;
 
             Vector3 dir = delta / dist;
             Vector3 right = new Vector3(dir.z, 0f, -dir.x);
@@ -275,26 +290,26 @@ namespace PoliticalMayhem.Core
             GameObject propGroup = new GameObject(groupName);
             propGroup.transform.SetParent(roadsRoot, false);
 
-            // Place highway approach signs near each city's outer gate
-            float signDistFromCity = 11.2f;
-            if (dist > signDistFromCity * 2.4f)
+            // Place overhead highway gantry signs centered cleanly over the road outside each city's gate
+            float signDistFromCity = 15.2f;
+            if (dist > signDistFromCity * 2.25f)
             {
-                Vector3 signPosA = a + dir * signDistFromCity + right * 1.65f;
-                if (IsClearOfCitiesAndOtherRoads(signPosA, fromCity, toCity, 9.8f, 1.9f))
+                Vector3 signPosA = a + dir * signDistFromCity;
+                if (IsClearOfCitiesAndOtherRoads(signPosA, fromCity, toCity, 13.5f, 3.6f))
                 {
                     InstantiateAndBindModel(
-                        new CityModelSpec("Models/Props/Roads/sign-highway", RoadsTex, "Mat_Kenney_Roads", signPosA, roadYaw, 1.85f, 0f),
+                        new CityModelSpec("Models/Props/Roads/sign-highway", RoadsTex, "Mat_Kenney_Roads", signPosA, roadYaw, 3.6f, 0f),
                         "Sign_Departure",
                         propGroup.transform,
                         envVisuals,
                         customMaterialAssigner);
                 }
 
-                Vector3 signPosB = b - dir * signDistFromCity - right * 1.65f;
-                if (IsClearOfCitiesAndOtherRoads(signPosB, fromCity, toCity, 9.8f, 1.9f))
+                Vector3 signPosB = b - dir * signDistFromCity;
+                if (IsClearOfCitiesAndOtherRoads(signPosB, fromCity, toCity, 13.5f, 3.6f))
                 {
                     InstantiateAndBindModel(
-                        new CityModelSpec("Models/Props/Roads/sign-highway", RoadsTex, "Mat_Kenney_Roads", signPosB, roadYaw + 180f, 1.85f, 0f),
+                        new CityModelSpec("Models/Props/Roads/sign-highway", RoadsTex, "Mat_Kenney_Roads", signPosB, roadYaw + 180f, 3.6f, 0f),
                         "Sign_Arrival",
                         propGroup.transform,
                         envVisuals,
@@ -302,10 +317,10 @@ namespace PoliticalMayhem.Core
                 }
             }
 
-            // Place streetlamps and roadside trees along the highway corridor
-            float startT = 14.5f;
-            float endT = dist - 14.5f;
-            float step = 15.5f;
+            // Place tall streetlamps (3.35u) and roadside trees (3.0-4.4u) along the widened highway corridor
+            float startT = 18.5f;
+            float endT = dist - 18.5f;
+            float step = 16.5f;
             int index = 0;
 
             for (float d = startT; d <= endT; d += step)
@@ -313,26 +328,26 @@ namespace PoliticalMayhem.Core
                 Vector3 centerPt = a + dir * d;
                 float side = (index % 2 == 0) ? 1f : -1f;
 
-                Vector3 lampPos = centerPt + right * (side * 1.55f);
-                if (IsClearOfCitiesAndOtherRoads(lampPos, fromCity, toCity, 10.2f, 1.8f))
+                Vector3 lampPos = centerPt + right * (side * 2.35f);
+                if (IsClearOfCitiesAndOtherRoads(lampPos, fromCity, toCity, 13.8f, 3.2f))
                 {
                     bool useDouble = (index % 3 == 0);
                     string lampModel = useDouble ? "Models/Props/Roads/light-curved-double" : "Models/Props/Roads/light-curved";
                     float lampYaw = roadYaw + (side > 0f ? -90f : 90f);
                     InstantiateAndBindModel(
-                        new CityModelSpec(lampModel, RoadsTex, "Mat_Kenney_Roads", lampPos, lampYaw, 2.15f, 0f),
+                        new CityModelSpec(lampModel, RoadsTex, "Mat_Kenney_Roads", lampPos, lampYaw, 3.35f, 0f),
                         $"RoadLamp_{index}",
                         propGroup.transform,
                         envVisuals,
                         customMaterialAssigner);
                 }
 
-                Vector3 treePos = centerPt - right * (side * 3.1f);
-                if (IsClearOfCitiesAndOtherRoads(treePos, fromCity, toCity, 10.8f, 2.6f))
+                Vector3 treePos = centerPt - right * (side * 4.4f);
+                if (IsClearOfCitiesAndOtherRoads(treePos, fromCity, toCity, 14.5f, 4.0f))
                 {
                     bool large = (index % 2 == 0);
                     string treeModel = large ? "Models/Cities/Suburban/tree-large" : "Models/Cities/Suburban/tree-small";
-                    float treeHeight = large ? 2.45f : 1.75f;
+                    float treeHeight = large ? 4.3f : 3.0f;
                     InstantiateAndBindModel(
                         new CityModelSpec(treeModel, SuburbanTex, "Mat_Kenney_Suburban", treePos, (index * 47f) % 360f, treeHeight, 0f),
                         $"RoadTree_{index}",
@@ -364,36 +379,36 @@ namespace PoliticalMayhem.Core
             GameObject sceneryRoot = new GameObject("SceneryRoot");
             sceneryRoot.transform.SetParent(envRoot, false);
 
-            Color mossPatchColor = new Color(0.11f, 0.15f, 0.14f);
-            Color highlandPatchColor = new Color(0.14f, 0.16f, 0.20f);
-            Color darkRockColor = new Color(0.24f, 0.27f, 0.32f);
-            Color lightRockColor = new Color(0.34f, 0.38f, 0.44f);
+            Color mossPatchColor = new Color(0.24f, 0.39f, 0.22f);
+            Color highlandPatchColor = new Color(0.35f, 0.42f, 0.30f);
+
+            string[] rockModels = { "Models/Nature/rock_1", "Models/Nature/rock_2", "Models/Nature/rock_moss_1" };
 
             ForestClusterSpec[] clusters = GetIslandClusters();
             for (int c = 0; c < clusters.Length; c++)
             {
                 ForestClusterSpec cluster = clusters[c];
-                if (!IsClearOfAllCitiesAndRoads(cluster.center, 11.2f, 3.0f))
+                if (!IsClearOfAllCitiesAndRoads(cluster.center, 15.2f, 4.8f))
                     continue;
 
                 GameObject clusterGo = new GameObject($"SceneryCluster_{c}");
                 clusterGo.transform.SetParent(sceneryRoot.transform, false);
                 clusterGo.transform.position = cluster.center;
 
-                // Subtle low-profile ground patch under the cluster (no collider so unit raycasts hit MapGround)
+                // Subtle lush meadow / highland ground patch under the cluster (no collider so unit raycasts hit MapGround)
                 Color patchColor = cluster.includeRockOutcrop ? highlandPatchColor : mossPatchColor;
                 CreateSceneryBlock(
                     PrimitiveType.Cylinder,
                     $"TerrainPatch_{c}",
                     clusterGo.transform,
-                    new Vector3(0f, 0.02f, 0f),
-                    new Vector3(cluster.spreadRadius * 1.85f, 0.025f, cluster.spreadRadius * 1.65f),
+                    new Vector3(0f, 0.015f, 0f),
+                    new Vector3(cluster.spreadRadius * 1.9f, 0.02f, cluster.spreadRadius * 1.7f),
                     patchColor,
-                    0.08f,
+                    0.06f,
                     envVisuals,
                     customColorAssigner);
 
-                // Optional rural/outpost accent building or industrial silo
+                // Optional rural/outpost accent building or industrial silo (properly scaled!)
                 if (!string.IsNullOrEmpty(cluster.accentModelPath))
                 {
                     InstantiateAndBindModel(
@@ -411,60 +426,73 @@ namespace PoliticalMayhem.Core
                         customMaterialAssigner);
                 }
 
-                // Optional stepped rock monoliths for highland/coastal clusters
+                // Real 3D low-poly rock outcrops (replacing legacy grey cubes)
                 if (cluster.includeRockOutcrop)
                 {
-                    GameObject rockA = CreateSceneryBlock(
-                        PrimitiveType.Cube,
+                    string rockA = rockModels[c % rockModels.Length];
+                    string rockB = rockModels[(c + 1) % rockModels.Length];
+                    InstantiateAndBindModel(
+                        new CityModelSpec(rockA, NatureTex, "Mat_Nature_Palette", new Vector3(-1.8f, 0f, 1.3f), c * 29f, 3.0f, 0f),
                         $"RockOutcropA_{c}",
                         clusterGo.transform,
-                        new Vector3(-1.4f, 0.85f, 1.1f),
-                        new Vector3(2.4f, 1.7f, 2.1f),
-                        darkRockColor,
-                        0.12f,
                         envVisuals,
-                        customColorAssigner);
-                    rockA.transform.localRotation = Quaternion.Euler(0f, c * 29f, 0f);
+                        customMaterialAssigner);
 
-                    GameObject rockB = CreateSceneryBlock(
-                        PrimitiveType.Cube,
+                    InstantiateAndBindModel(
+                        new CityModelSpec(rockB, NatureTex, "Mat_Nature_Palette", new Vector3(1.5f, 0f, 1.6f), -c * 37f, 3.9f, 0f),
                         $"RockOutcropB_{c}",
                         clusterGo.transform,
-                        new Vector3(1.2f, 1.15f, 1.4f),
-                        new Vector3(2.0f, 2.3f, 1.9f),
-                        lightRockColor,
-                        0.14f,
                         envVisuals,
-                        customColorAssigner);
-                    rockB.transform.localRotation = Quaternion.Euler(0f, -c * 37f, 0f);
+                        customMaterialAssigner);
                 }
 
                 int totalTrees = cluster.largeTreeCount + cluster.smallTreeCount;
                 for (int t = 0; t < totalTrees; t++)
                 {
                     float angle = (t / (float)Mathf.Max(1, totalTrees)) * Mathf.PI * 2f + (c * 0.65f);
-                    float ringFactor = (t % 2 == 0) ? 0.52f : 0.86f;
+                    float ringFactor = (t % 2 == 0) ? 0.56f : 0.90f;
                     float r = cluster.spreadRadius * ringFactor;
                     Vector3 localOffset = new Vector3(Mathf.Cos(angle) * r, 0f, Mathf.Sin(angle) * r);
                     Vector3 worldTreePos = cluster.center + localOffset;
 
-                    if (!IsClearOfAllCitiesAndRoads(worldTreePos, 10.6f, 2.6f))
+                    if (!IsClearOfAllCitiesAndRoads(worldTreePos, 14.5f, 4.0f))
                         continue;
 
                     bool isLarge = t < cluster.largeTreeCount;
-                    string treePath = isLarge ? "Models/Cities/Suburban/tree-large" : "Models/Cities/Suburban/tree-small";
+                    bool usePine = isLarge && ((c + t) % 3 == 0);
+                    string treePath = usePine
+                        ? "Models/Nature/pine_tree_1"
+                        : (isLarge ? "Models/Cities/Suburban/tree-large" : "Models/Cities/Suburban/tree-small");
+                    string treeTex = usePine ? NatureTex : SuburbanTex;
+                    string treeMat = usePine ? "Mat_Nature_Palette" : "Mat_Kenney_Suburban";
                     float height = isLarge
-                        ? 2.4f + ((c + t) % 3) * 0.35f
-                        : 1.6f + ((c + t) % 3) * 0.25f;
+                        ? 4.4f + ((c + t) % 3) * 0.45f
+                        : 2.9f + ((c + t) % 3) * 0.30f;
 
                     InstantiateAndBindModel(
-                        new CityModelSpec(treePath, SuburbanTex, "Mat_Kenney_Suburban", localOffset, ((c * 31 + t * 67) % 360), height, 0f),
+                        new CityModelSpec(treePath, treeTex, treeMat, localOffset, ((c * 31 + t * 67) % 360), height, 0f),
                         $"Tree_{c}_{t}",
                         clusterGo.transform,
                         envVisuals,
                         customMaterialAssigner);
                 }
             }
+
+            // Harbor boats floating cleanly in the coastal ocean visible near Limankent & shores
+            GameObject harborRoot = new GameObject("HarborBoats");
+            harborRoot.transform.SetParent(sceneryRoot.transform, false);
+            InstantiateAndBindModel(
+                new CityModelSpec("Models/Props/Harbor/boat_sail", HarborTex, "Mat_Kenney_Harbor", new Vector3(-80f, 0f, -26f), 32f, 4.8f, -0.40f),
+                "HarborBoat_Sail1", harborRoot.transform, envVisuals, customMaterialAssigner);
+            InstantiateAndBindModel(
+                new CityModelSpec("Models/Props/Harbor/boat_fishing", HarborTex, "Mat_Kenney_Harbor", new Vector3(-62f, 0f, -55f), 75f, 3.4f, -0.40f),
+                "HarborBoat_Fishing1", harborRoot.transform, envVisuals, customMaterialAssigner);
+            InstantiateAndBindModel(
+                new CityModelSpec("Models/Props/Harbor/boat_speed", HarborTex, "Mat_Kenney_Harbor", new Vector3(-44f, 0f, -55f), 110f, 2.4f, -0.40f),
+                "HarborBoat_Speed1", harborRoot.transform, envVisuals, customMaterialAssigner);
+            InstantiateAndBindModel(
+                new CityModelSpec("Models/Props/Harbor/boat_sail", HarborTex, "Mat_Kenney_Harbor", new Vector3(82f, 0f, -14f), -45f, 4.6f, -0.40f),
+                "HarborBoat_EastSail", harborRoot.transform, envVisuals, customMaterialAssigner);
         }
 
         private static GameObject CreateSceneryBlock(
@@ -585,11 +613,13 @@ namespace PoliticalMayhem.Core
                 if (hubGo == null) continue;
 
                 hubGo.transform.position = CityCatalog.GetWorldPosition(cityId);
-                UpgradeCapitolPedestalAndPlaza(hubGo.transform);
+                UpgradeCapitolPedestalAndPlaza(hubGo.transform, cityId);
 
                 bool hasCapitolLandmark = hubGo.transform.Find("CityCapitolLandmark") != null;
                 bool hasDistrictModels = hubGo.transform.Find("CityModel_0") != null;
-                if (hasCapitolLandmark && hasDistrictModels)
+                Transform plazaCheck = hubGo.transform.Find("CityPlaza");
+                bool plazaNeedsScaleUpgrade = plazaCheck == null || plazaCheck.localScale.x < 19f;
+                if (hasCapitolLandmark && hasDistrictModels && !plazaNeedsScaleUpgrade)
                     continue;
 
                 CityModelSpec[] specs = GetSpecsForCity(cityId);
@@ -657,9 +687,9 @@ namespace PoliticalMayhem.Core
                     DestroySafe(roadsRoot.GetChild(i).gameObject);
                 }
 
-                Color roadColor = new Color(0.18f, 0.20f, 0.24f);
-                Color curbColor = new Color(0.14f, 0.16f, 0.20f);
-                Color medianColor = new Color(0.42f, 0.46f, 0.52f);
+                Color roadColor = new Color(0.24f, 0.26f, 0.30f);
+                Color curbColor = new Color(0.54f, 0.57f, 0.60f);
+                Color medianColor = new Color(0.90f, 0.80f, 0.32f);
 
                 for (int i = 0; i < HighwayRoutes.Length; i++)
                 {
@@ -677,10 +707,10 @@ namespace PoliticalMayhem.Core
                         PrimitiveType.Cube,
                         $"RoadCurb_{keyA}_{keyB}",
                         roadsRoot,
-                        new Vector3(mid.x, 0.015f, mid.z),
-                        new Vector3(2.15f, 0.03f, dist),
+                        new Vector3(mid.x, 0.01f, mid.z),
+                        new Vector3(3.8f, 0.02f, dist),
                         curbColor,
-                        0.10f,
+                        0.12f,
                         envVisuals,
                         null);
                     curb.transform.rotation = rot;
@@ -689,21 +719,21 @@ namespace PoliticalMayhem.Core
                         PrimitiveType.Cube,
                         $"Road_{keyA}_{keyB}",
                         roadsRoot,
-                        new Vector3(mid.x, 0.03f, mid.z),
-                        new Vector3(1.7f, 0.05f, dist),
+                        new Vector3(mid.x, 0.025f, mid.z),
+                        new Vector3(3.2f, 0.035f, dist),
                         roadColor,
                         0.15f,
                         envVisuals,
                         null);
                     road.transform.rotation = rot;
 
-                    float medianLen = Mathf.Max(2f, dist - 17.0f);
+                    float medianLen = Mathf.Max(2f, dist - 24.5f);
                     GameObject median = CreateSceneryBlock(
                         PrimitiveType.Cube,
                         $"RoadMedian_{keyA}_{keyB}",
                         roadsRoot,
-                        new Vector3(mid.x, 0.045f, mid.z),
-                        new Vector3(0.14f, 0.035f, medianLen),
+                        new Vector3(mid.x, 0.042f, mid.z),
+                        new Vector3(0.18f, 0.02f, medianLen),
                         medianColor,
                         0.20f,
                         envVisuals,
@@ -745,7 +775,7 @@ namespace PoliticalMayhem.Core
                         "Mat_Kenney_Commercial",
                         Vector3.zero,
                         0f,
-                        5.4f,
+                        10.2f,
                         PedestalTopY);
 
                 case CityId.Limankent:
@@ -755,7 +785,7 @@ namespace PoliticalMayhem.Core
                         "Mat_Kenney_Commercial",
                         Vector3.zero,
                         0f,
-                        4.1f,
+                        6.8f,
                         PedestalTopY);
 
                 case CityId.Demirkent:
@@ -765,7 +795,7 @@ namespace PoliticalMayhem.Core
                         "Mat_Kenney_Industrial",
                         Vector3.zero,
                         0f,
-                        4.2f,
+                        6.8f,
                         PedestalTopY);
 
                 case CityId.Yesilova:
@@ -775,7 +805,7 @@ namespace PoliticalMayhem.Core
                         "Mat_Kenney_Suburban",
                         Vector3.zero,
                         0f,
-                        3.3f,
+                        5.4f,
                         PedestalTopY);
 
                 case CityId.Universitekent:
@@ -785,7 +815,7 @@ namespace PoliticalMayhem.Core
                         "Mat_Kenney_Commercial",
                         Vector3.zero,
                         0f,
-                        4.5f,
+                        7.8f,
                         PedestalTopY);
 
                 case CityId.Dagsehir:
@@ -796,100 +826,99 @@ namespace PoliticalMayhem.Core
                         "Mat_Kenney_Suburban",
                         Vector3.zero,
                         0f,
-                        3.4f,
+                        5.4f,
                         PedestalTopY);
             }
         }
 
         private static CityModelSpec[] GetSpecsForCity(CityId cityId)
         {
+            // All cities keep the southern front courtyard (Z in [-9.2, -3.5], X in [-5.8, 5.8])
+            // wide open so Rally Crowds & Campaign Units NEVER clip into buildings.
             switch (cityId)
             {
                 case CityId.Baskent:
                     return new[]
                     {
-                        new CityModelSpec("Models/Cities/Commercial/building-skyscraper-a", CommercialTex, "Mat_Kenney_Commercial", new Vector3(-4.2f, 0f, 2.2f), 18f, 4.3f),
-                        new CityModelSpec("Models/Cities/Commercial/building-m", CommercialTex, "Mat_Kenney_Commercial", new Vector3(4.2f, 0f, 2.2f), -18f, 4.0f),
-                        new CityModelSpec("Models/Cities/Commercial/building-l", CommercialTex, "Mat_Kenney_Commercial", new Vector3(-4.3f, 0f, -1.9f), 25f, 3.0f),
-                        new CityModelSpec("Models/Cities/Commercial/building-j", CommercialTex, "Mat_Kenney_Commercial", new Vector3(4.3f, 0f, -1.9f), -25f, 2.8f),
-                        new CityModelSpec("Models/Cities/Commercial/building-k", CommercialTex, "Mat_Kenney_Commercial", new Vector3(0f, 0f, 4.7f), 0f, 3.1f),
-                        new CityModelSpec("Models/Props/Roads/light-curved-double", RoadsTex, "Mat_Kenney_Roads", new Vector3(-2.1f, 0f, -4.6f), 0f, 1.8f),
-                        new CityModelSpec("Models/Props/Roads/light-curved-double", RoadsTex, "Mat_Kenney_Roads", new Vector3(2.1f, 0f, -4.6f), 0f, 1.8f),
-                        new CityModelSpec("Models/Cities/Commercial/building-k", CommercialTex, "Mat_Kenney_Commercial", new Vector3(-7.6f, 0f, 4.8f), 20f, 2.7f, 0f),
-                        new CityModelSpec("Models/Cities/Commercial/building-j", CommercialTex, "Mat_Kenney_Commercial", new Vector3(7.6f, 0f, 4.8f), -20f, 2.7f, 0f),
-                        new CityModelSpec("Models/Cities/Suburban/tree-large", SuburbanTex, "Mat_Kenney_Suburban", new Vector3(-8.4f, 0f, -2.4f), 15f, 2.5f, 0f),
-                        new CityModelSpec("Models/Cities/Suburban/tree-large", SuburbanTex, "Mat_Kenney_Suburban", new Vector3(8.4f, 0f, -2.4f), 65f, 2.5f, 0f)
+                        new CityModelSpec("Models/Cities/Commercial/building-skyscraper-a", CommercialTex, "Mat_Kenney_Commercial", new Vector3(-5.8f, 0f, 3.6f), 15f, 8.2f),
+                        new CityModelSpec("Models/Cities/Commercial/building-m", CommercialTex, "Mat_Kenney_Commercial", new Vector3(5.8f, 0f, 3.6f), -15f, 7.2f),
+                        new CityModelSpec("Models/Cities/Commercial/building-l", CommercialTex, "Mat_Kenney_Commercial", new Vector3(-7.4f, 0f, -1.0f), 25f, 5.6f),
+                        new CityModelSpec("Models/Cities/Commercial/building-j", CommercialTex, "Mat_Kenney_Commercial", new Vector3(7.4f, 0f, -1.0f), -25f, 5.2f),
+                        new CityModelSpec("Models/Cities/Commercial/building-k", CommercialTex, "Mat_Kenney_Commercial", new Vector3(0f, 0f, 6.8f), 0f, 5.8f),
+                        new CityModelSpec("Models/Props/Roads/light-curved-double", RoadsTex, "Mat_Kenney_Roads", new Vector3(-3.8f, 0f, -8.5f), 0f, 3.3f),
+                        new CityModelSpec("Models/Props/Roads/light-curved-double", RoadsTex, "Mat_Kenney_Roads", new Vector3(3.8f, 0f, -8.5f), 0f, 3.3f),
+                        new CityModelSpec("Models/Cities/Suburban/tree-large", SuburbanTex, "Mat_Kenney_Suburban", new Vector3(-8.2f, 0f, -5.8f), 15f, 4.4f),
+                        new CityModelSpec("Models/Cities/Suburban/tree-large", SuburbanTex, "Mat_Kenney_Suburban", new Vector3(8.2f, 0f, -5.8f), 65f, 4.4f)
                     };
 
                 case CityId.Limankent:
                     return new[]
                     {
-                        new CityModelSpec("Models/Cities/Industrial/building-d", IndustrialTex, "Mat_Kenney_Industrial", new Vector3(-4.1f, 0f, 2.2f), 15f, 2.8f),
-                        new CityModelSpec("Models/Cities/Industrial/building-q", IndustrialTex, "Mat_Kenney_Industrial", new Vector3(4.1f, 0f, 2.1f), -15f, 2.3f),
-                        new CityModelSpec("Models/Cities/Industrial/building-p", IndustrialTex, "Mat_Kenney_Industrial", new Vector3(-4.2f, 0f, -2.0f), 10f, 2.1f),
-                        new CityModelSpec("Models/Cities/Industrial/detail-tank", IndustrialTex, "Mat_Kenney_Industrial", new Vector3(4.2f, 0f, -2.0f), 35f, 1.6f),
-                        new CityModelSpec("Models/Cities/Commercial/building-j", CommercialTex, "Mat_Kenney_Commercial", new Vector3(0f, 0f, 4.6f), 0f, 2.6f),
-                        new CityModelSpec("Models/Props/Roads/light-curved", RoadsTex, "Mat_Kenney_Roads", new Vector3(-2.0f, 0f, -4.6f), 0f, 1.7f),
-                        new CityModelSpec("Models/Props/Roads/light-curved", RoadsTex, "Mat_Kenney_Roads", new Vector3(2.0f, 0f, -4.6f), 180f, 1.7f),
-                        new CityModelSpec("Models/Cities/Industrial/building-e", IndustrialTex, "Mat_Kenney_Industrial", new Vector3(-7.8f, 0f, -4.2f), 40f, 2.4f, 0f),
-                        new CityModelSpec("Models/Cities/Industrial/detail-tank", IndustrialTex, "Mat_Kenney_Industrial", new Vector3(7.8f, 0f, 4.0f), 0f, 1.7f, 0f),
-                        new CityModelSpec("Models/Cities/Suburban/tree-small", SuburbanTex, "Mat_Kenney_Suburban", new Vector3(-8.2f, 0f, 3.8f), 20f, 1.8f, 0f)
+                        new CityModelSpec("Models/Cities/Industrial/building-d", IndustrialTex, "Mat_Kenney_Industrial", new Vector3(-6.2f, 0f, 3.8f), 15f, 5.2f),
+                        new CityModelSpec("Models/Cities/Industrial/building-q", IndustrialTex, "Mat_Kenney_Industrial", new Vector3(6.4f, 0f, 3.6f), -15f, 4.4f),
+                        new CityModelSpec("Models/Cities/Industrial/building-p", IndustrialTex, "Mat_Kenney_Industrial", new Vector3(-7.8f, 0f, -0.6f), 10f, 4.2f),
+                        new CityModelSpec("Models/Cities/Industrial/detail-tank", IndustrialTex, "Mat_Kenney_Industrial", new Vector3(7.6f, 0f, -0.6f), 35f, 3.1f),
+                        new CityModelSpec("Models/Cities/Commercial/building-j", CommercialTex, "Mat_Kenney_Commercial", new Vector3(0f, 0f, 7.0f), 0f, 5.0f),
+                        new CityModelSpec("Models/Props/Roads/light-curved", RoadsTex, "Mat_Kenney_Roads", new Vector3(-4.2f, 0f, -8.5f), 0f, 3.2f),
+                        new CityModelSpec("Models/Props/Roads/light-curved", RoadsTex, "Mat_Kenney_Roads", new Vector3(4.2f, 0f, -8.5f), 180f, 3.2f),
+                        new CityModelSpec("Models/Cities/Suburban/tree-large", SuburbanTex, "Mat_Kenney_Suburban", new Vector3(-8.4f, 0f, 6.2f), 20f, 4.2f)
                     };
 
                 case CityId.Demirkent:
                     return new[]
                     {
-                        new CityModelSpec("Models/Cities/Industrial/building-e", IndustrialTex, "Mat_Kenney_Industrial", new Vector3(-4.1f, 0f, 2.1f), 0f, 2.7f),
-                        new CityModelSpec("Models/Cities/Industrial/building-d", IndustrialTex, "Mat_Kenney_Industrial", new Vector3(4.1f, 0f, 2.1f), 180f, 2.6f),
-                        new CityModelSpec("Models/Cities/Industrial/chimney-large", IndustrialTex, "Mat_Kenney_Industrial", new Vector3(-4.2f, 0f, -2.1f), 0f, 4.3f),
-                        new CityModelSpec("Models/Cities/Industrial/chimney-large", IndustrialTex, "Mat_Kenney_Industrial", new Vector3(4.2f, 0f, -2.1f), 45f, 3.9f),
-                        new CityModelSpec("Models/Cities/Industrial/detail-tank", IndustrialTex, "Mat_Kenney_Industrial", new Vector3(0f, 0f, 4.6f), 0f, 1.6f),
-                        new CityModelSpec("Models/Props/Roads/light-curved-double", RoadsTex, "Mat_Kenney_Roads", new Vector3(0f, 0f, -4.6f), 0f, 1.8f),
-                        new CityModelSpec("Models/Cities/Industrial/building-q", IndustrialTex, "Mat_Kenney_Industrial", new Vector3(8.0f, 0f, -3.8f), -30f, 2.2f, 0f),
-                        new CityModelSpec("Models/Cities/Industrial/building-p", IndustrialTex, "Mat_Kenney_Industrial", new Vector3(-8.0f, 0f, 3.8f), 30f, 2.0f, 0f)
+                        new CityModelSpec("Models/Cities/Industrial/building-e", IndustrialTex, "Mat_Kenney_Industrial", new Vector3(-6.4f, 0f, 3.6f), 0f, 5.2f),
+                        new CityModelSpec("Models/Cities/Industrial/building-d", IndustrialTex, "Mat_Kenney_Industrial", new Vector3(6.4f, 0f, 3.6f), 180f, 5.0f),
+                        new CityModelSpec("Models/Cities/Industrial/chimney-large", IndustrialTex, "Mat_Kenney_Industrial", new Vector3(-7.6f, 0f, -1.0f), 0f, 8.6f),
+                        new CityModelSpec("Models/Cities/Industrial/chimney-large", IndustrialTex, "Mat_Kenney_Industrial", new Vector3(7.6f, 0f, -1.0f), 45f, 7.8f),
+                        new CityModelSpec("Models/Cities/Industrial/detail-tank", IndustrialTex, "Mat_Kenney_Industrial", new Vector3(0f, 0f, 7.0f), 0f, 3.1f),
+                        new CityModelSpec("Models/Props/Roads/light-curved-double", RoadsTex, "Mat_Kenney_Roads", new Vector3(-4.2f, 0f, -8.5f), 0f, 3.3f),
+                        new CityModelSpec("Models/Props/Roads/light-curved-double", RoadsTex, "Mat_Kenney_Roads", new Vector3(4.2f, 0f, -8.5f), 0f, 3.3f),
+                        new CityModelSpec("Models/Cities/Industrial/building-p", IndustrialTex, "Mat_Kenney_Industrial", new Vector3(11.0f, 0f, -6.2f), -30f, 4.2f, 0f)
                     };
 
                 case CityId.Yesilova:
                     return new[]
                     {
-                        new CityModelSpec("Models/Cities/Suburban/building-type-b", SuburbanTex, "Mat_Kenney_Suburban", new Vector3(-4.0f, 0f, 2.2f), 20f, 2.3f),
-                        new CityModelSpec("Models/Cities/Suburban/building-type-f", SuburbanTex, "Mat_Kenney_Suburban", new Vector3(4.0f, 0f, 2.2f), -20f, 2.2f),
-                        new CityModelSpec("Models/Cities/Suburban/building-type-j", SuburbanTex, "Mat_Kenney_Suburban", new Vector3(-4.1f, 0f, -2.0f), 15f, 2.1f),
-                        new CityModelSpec("Models/Cities/Suburban/building-type-n", SuburbanTex, "Mat_Kenney_Suburban", new Vector3(4.1f, 0f, -2.0f), -15f, 2.1f),
-                        new CityModelSpec("Models/Cities/Suburban/tree-large", SuburbanTex, "Mat_Kenney_Suburban", new Vector3(0f, 0f, 4.7f), 0f, 2.6f),
-                        new CityModelSpec("Models/Cities/Suburban/tree-large", SuburbanTex, "Mat_Kenney_Suburban", new Vector3(-4.8f, 0f, 0.1f), 40f, 2.4f),
-                        new CityModelSpec("Models/Cities/Suburban/tree-large", SuburbanTex, "Mat_Kenney_Suburban", new Vector3(4.8f, 0f, 0.1f), 75f, 2.4f),
-                        new CityModelSpec("Models/Cities/Suburban/tree-small", SuburbanTex, "Mat_Kenney_Suburban", new Vector3(-2.0f, 0f, -4.5f), 15f, 1.7f),
-                        new CityModelSpec("Models/Cities/Suburban/tree-small", SuburbanTex, "Mat_Kenney_Suburban", new Vector3(2.0f, 0f, -4.5f), 65f, 1.7f),
-                        new CityModelSpec("Models/Cities/Suburban/building-type-e", SuburbanTex, "Mat_Kenney_Suburban", new Vector3(-7.8f, 0f, 4.2f), 25f, 2.1f, 0f),
-                        new CityModelSpec("Models/Cities/Suburban/tree-large", SuburbanTex, "Mat_Kenney_Suburban", new Vector3(7.8f, 0f, 4.2f), 10f, 2.7f, 0f),
-                        new CityModelSpec("Models/Cities/Suburban/tree-large", SuburbanTex, "Mat_Kenney_Suburban", new Vector3(-7.6f, 0f, -4.4f), 50f, 2.5f, 0f)
+                        new CityModelSpec("Models/Cities/Suburban/building-type-b", SuburbanTex, "Mat_Kenney_Suburban", new Vector3(-6.2f, 0f, 3.6f), 20f, 4.3f),
+                        new CityModelSpec("Models/Cities/Suburban/building-type-f", SuburbanTex, "Mat_Kenney_Suburban", new Vector3(6.2f, 0f, 3.6f), -20f, 4.2f),
+                        new CityModelSpec("Models/Cities/Suburban/building-type-j", SuburbanTex, "Mat_Kenney_Suburban", new Vector3(-7.5f, 0f, -1.5f), 15f, 4.0f),
+                        new CityModelSpec("Models/Cities/Suburban/building-type-n", SuburbanTex, "Mat_Kenney_Suburban", new Vector3(7.5f, 0f, -1.5f), -15f, 4.0f),
+                        new CityModelSpec("Models/Cities/Suburban/tree-large", SuburbanTex, "Mat_Kenney_Suburban", new Vector3(0f, 0f, 7.2f), 0f, 4.8f),
+                        new CityModelSpec("Models/Cities/Suburban/tree-large", SuburbanTex, "Mat_Kenney_Suburban", new Vector3(-7.2f, 0f, 6.4f), 40f, 4.6f),
+                        new CityModelSpec("Models/Cities/Suburban/tree-large", SuburbanTex, "Mat_Kenney_Suburban", new Vector3(7.2f, 0f, 6.4f), 75f, 4.6f),
+                        new CityModelSpec("Models/Cities/Suburban/tree-small", SuburbanTex, "Mat_Kenney_Suburban", new Vector3(-4.2f, 0f, -8.4f), 15f, 3.0f),
+                        new CityModelSpec("Models/Cities/Suburban/tree-small", SuburbanTex, "Mat_Kenney_Suburban", new Vector3(4.2f, 0f, -8.4f), 65f, 3.0f),
+                        new CityModelSpec("Models/Cities/Suburban/building-type-e", SuburbanTex, "Mat_Kenney_Suburban", new Vector3(-11.8f, 0f, 6.5f), 25f, 4.1f, 0f)
                     };
 
                 case CityId.Universitekent:
                     return new[]
                     {
-                        new CityModelSpec("Models/Cities/Commercial/building-k", CommercialTex, "Mat_Kenney_Commercial", new Vector3(-4.1f, 0f, 2.2f), 15f, 2.8f),
-                        new CityModelSpec("Models/Cities/Commercial/building-j", CommercialTex, "Mat_Kenney_Commercial", new Vector3(4.1f, 0f, 2.2f), -15f, 2.6f),
-                        new CityModelSpec("Models/Cities/Suburban/building-type-n", SuburbanTex, "Mat_Kenney_Suburban", new Vector3(-4.0f, 0f, -2.1f), 25f, 2.2f),
-                        new CityModelSpec("Models/Cities/Suburban/building-type-b", SuburbanTex, "Mat_Kenney_Suburban", new Vector3(4.0f, 0f, -2.1f), -25f, 2.2f),
-                        new CityModelSpec("Models/Cities/Suburban/tree-large", SuburbanTex, "Mat_Kenney_Suburban", new Vector3(0f, 0f, 4.7f), 25f, 2.4f),
-                        new CityModelSpec("Models/Cities/Suburban/tree-small", SuburbanTex, "Mat_Kenney_Suburban", new Vector3(-2.1f, 0f, -4.5f), 0f, 1.6f),
-                        new CityModelSpec("Models/Props/Roads/sign-highway", RoadsTex, "Mat_Kenney_Roads", new Vector3(2.1f, 0f, -4.5f), 0f, 1.7f),
-                        new CityModelSpec("Models/Cities/Suburban/building-type-f", SuburbanTex, "Mat_Kenney_Suburban", new Vector3(7.8f, 0f, 4.0f), -30f, 2.1f, 0f),
-                        new CityModelSpec("Models/Cities/Suburban/tree-large", SuburbanTex, "Mat_Kenney_Suburban", new Vector3(-7.8f, 0f, 4.0f), 15f, 2.5f, 0f)
+                        new CityModelSpec("Models/Cities/Commercial/building-k", CommercialTex, "Mat_Kenney_Commercial", new Vector3(-6.2f, 0f, 3.5f), 15f, 5.4f),
+                        new CityModelSpec("Models/Cities/Commercial/building-j", CommercialTex, "Mat_Kenney_Commercial", new Vector3(6.2f, 0f, 3.5f), -15f, 5.0f),
+                        new CityModelSpec("Models/Cities/Suburban/building-type-n", SuburbanTex, "Mat_Kenney_Suburban", new Vector3(-7.4f, 0f, -1.4f), 25f, 4.1f),
+                        new CityModelSpec("Models/Cities/Suburban/building-type-b", SuburbanTex, "Mat_Kenney_Suburban", new Vector3(7.4f, 0f, -1.4f), -25f, 4.1f),
+                        new CityModelSpec("Models/Cities/Suburban/tree-large", SuburbanTex, "Mat_Kenney_Suburban", new Vector3(0f, 0f, 7.0f), 25f, 4.6f),
+                        new CityModelSpec("Models/Cities/Suburban/tree-small", SuburbanTex, "Mat_Kenney_Suburban", new Vector3(-4.2f, 0f, -8.3f), 0f, 3.0f),
+                        new CityModelSpec("Models/Props/Roads/light-curved", RoadsTex, "Mat_Kenney_Roads", new Vector3(4.2f, 0f, -8.3f), 180f, 3.2f),
+                        new CityModelSpec("Models/Cities/Suburban/building-type-f", SuburbanTex, "Mat_Kenney_Suburban", new Vector3(11.8f, 0f, 5.8f), -30f, 4.0f, 0f)
                     };
 
                 case CityId.Dagsehir:
                     return new[]
                     {
-                        new CityModelSpec("Models/Cities/Suburban/building-type-j", SuburbanTex, "Mat_Kenney_Suburban", new Vector3(-4.0f, 0f, -1.9f), 20f, 2.2f),
-                        new CityModelSpec("Models/Cities/Suburban/building-type-a", SuburbanTex, "Mat_Kenney_Suburban", new Vector3(4.0f, 0f, -1.9f), -20f, 2.2f),
-                        new CityModelSpec("Models/Cities/Suburban/building-type-f", SuburbanTex, "Mat_Kenney_Suburban", new Vector3(0f, 0f, 4.5f), 0f, 2.1f),
-                        new CityModelSpec("Models/Cities/Suburban/tree-large", SuburbanTex, "Mat_Kenney_Suburban", new Vector3(-4.6f, 0f, 1.4f), 10f, 2.5f),
-                        new CityModelSpec("Models/Cities/Suburban/tree-large", SuburbanTex, "Mat_Kenney_Suburban", new Vector3(4.6f, 0f, 1.4f), 55f, 2.5f),
-                        new CityModelSpec("Models/Cities/Suburban/tree-small", SuburbanTex, "Mat_Kenney_Suburban", new Vector3(-2.0f, 0f, -4.5f), 30f, 1.7f),
-                        new CityModelSpec("Models/Cities/Suburban/tree-small", SuburbanTex, "Mat_Kenney_Suburban", new Vector3(2.0f, 0f, -4.5f), 80f, 1.7f)
+                        new CityModelSpec("Models/Cities/Suburban/building-type-j", SuburbanTex, "Mat_Kenney_Suburban", new Vector3(-7.4f, 0f, -0.5f), 20f, 4.1f),
+                        new CityModelSpec("Models/Cities/Suburban/building-type-a", SuburbanTex, "Mat_Kenney_Suburban", new Vector3(7.4f, 0f, -0.5f), -20f, 4.1f),
+                        new CityModelSpec("Models/Cities/Suburban/building-type-f", SuburbanTex, "Mat_Kenney_Suburban", new Vector3(0f, 0f, 6.4f), 0f, 4.0f),
+                        new CityModelSpec("Models/Nature/pine_tree_1", NatureTex, "Mat_Nature_Palette", new Vector3(-6.4f, 0f, 4.2f), 10f, 5.2f),
+                        new CityModelSpec("Models/Nature/pine_tree_1", NatureTex, "Mat_Nature_Palette", new Vector3(6.4f, 0f, 4.2f), 55f, 5.2f),
+                        new CityModelSpec("Models/Cities/Suburban/tree-small", SuburbanTex, "Mat_Kenney_Suburban", new Vector3(-4.2f, 0f, -8.3f), 30f, 3.0f),
+                        new CityModelSpec("Models/Cities/Suburban/tree-small", SuburbanTex, "Mat_Kenney_Suburban", new Vector3(4.2f, 0f, -8.3f), 80f, 3.0f),
+                        // Real 3D snow-capped alpine mountains framing Dağşehir's northern skyline (replacing legacy grey cubes)
+                        new CityModelSpec("Models/Nature/mountain_snow_2", NatureTex, "Mat_Nature_Palette", new Vector3(-11.5f, 0f, 10.5f), 25f, 11.5f, 0f),
+                        new CityModelSpec("Models/Nature/mountain_snow_1", NatureTex, "Mat_Nature_Palette", new Vector3(0f, 0f, 14.5f), -12f, 14.8f, 0f),
+                        new CityModelSpec("Models/Nature/mountain_snow_3", NatureTex, "Mat_Nature_Palette", new Vector3(11.5f, 0f, 10.5f), 140f, 10.8f, 0f)
                     };
 
                 default:
@@ -902,38 +931,36 @@ namespace PoliticalMayhem.Core
             return new[]
             {
                 // Central-West Valley between Başkent, Limankent, and Yeşilova
-                new ForestClusterSpec(new Vector3(-26f, 0f, 10f), 5.8f, 4, 3, false, "Models/Cities/Suburban/building-type-f", SuburbanTex, "Mat_Kenney_Suburban", 1.9f),
-                new ForestClusterSpec(new Vector3(-34f, 0f, -4f), 5.2f, 4, 2, false),
-                new ForestClusterSpec(new Vector3(-16f, 0f, -4f), 4.6f, 3, 3, false),
+                new ForestClusterSpec(new Vector3(-26f, 0f, 10f), 6.2f, 4, 3, false, "Models/Cities/Suburban/building-type-f", SuburbanTex, "Mat_Kenney_Suburban", 3.8f),
+                new ForestClusterSpec(new Vector3(-34f, 0f, -4f), 5.6f, 4, 2, false),
+                new ForestClusterSpec(new Vector3(-16f, 0f, -6f), 5.0f, 3, 3, false),
 
                 // Central-East Valley between Başkent, Demirkent, and Üniversitekent
-                new ForestClusterSpec(new Vector3(25f, 0f, 14f), 5.6f, 4, 3, false, "Models/Cities/Suburban/building-type-j", SuburbanTex, "Mat_Kenney_Suburban", 1.9f),
-                new ForestClusterSpec(new Vector3(34f, 0f, 16f), 4.8f, 3, 2, true),
-                new ForestClusterSpec(new Vector3(17f, 0f, -6f), 4.6f, 3, 2, false),
+                new ForestClusterSpec(new Vector3(25f, 0f, 15f), 6.0f, 4, 3, false, "Models/Cities/Suburban/building-type-j", SuburbanTex, "Mat_Kenney_Suburban", 3.8f),
+                new ForestClusterSpec(new Vector3(34f, 0f, 16f), 5.2f, 3, 2, true),
+                new ForestClusterSpec(new Vector3(17f, 0f, -8f), 5.0f, 3, 2, false),
 
                 // Southern Heartland & Coastal Plains (between Limankent and Demirkent)
-                new ForestClusterSpec(new Vector3(0f, 0f, -28f), 6.2f, 5, 3, true),
-                new ForestClusterSpec(new Vector3(-22f, 0f, -34f), 5.5f, 4, 3, false, "Models/Cities/Suburban/building-type-b", SuburbanTex, "Mat_Kenney_Suburban", 1.8f),
-                new ForestClusterSpec(new Vector3(22f, 0f, -30f), 5.5f, 4, 3, true, "Models/Cities/Industrial/detail-tank", IndustrialTex, "Mat_Kenney_Industrial", 1.5f),
-                new ForestClusterSpec(new Vector3(-8f, 0f, -8f), 4.2f, 2, 3, false),
+                new ForestClusterSpec(new Vector3(0f, 0f, -29f), 6.6f, 5, 3, true),
+                new ForestClusterSpec(new Vector3(-22f, 0f, -35f), 5.8f, 4, 3, false, "Models/Cities/Suburban/building-type-b", SuburbanTex, "Mat_Kenney_Suburban", 3.7f),
+                new ForestClusterSpec(new Vector3(22f, 0f, -31f), 5.8f, 4, 3, true, "Models/Cities/Industrial/detail-tank", IndustrialTex, "Mat_Kenney_Industrial", 3.0f),
 
                 // Northern Alpine Foothills (framing Başkent, Yeşilova, Dağşehir, Üniversitekent)
-                new ForestClusterSpec(new Vector3(-18f, 0f, 38f), 5.4f, 4, 3, true),
-                new ForestClusterSpec(new Vector3(18f, 0f, 38f), 5.4f, 4, 3, true),
-                new ForestClusterSpec(new Vector3(-24f, 0f, 64f), 6.0f, 5, 3, true),
-                new ForestClusterSpec(new Vector3(24f, 0f, 64f), 6.0f, 5, 3, true),
-                new ForestClusterSpec(new Vector3(0f, 0f, 72f), 5.6f, 4, 2, true),
+                new ForestClusterSpec(new Vector3(-19f, 0f, 40f), 5.8f, 4, 3, true),
+                new ForestClusterSpec(new Vector3(19f, 0f, 40f), 5.8f, 4, 3, true),
+                new ForestClusterSpec(new Vector3(-26f, 0f, 65f), 6.2f, 5, 3, true),
+                new ForestClusterSpec(new Vector3(26f, 0f, 65f), 6.2f, 5, 3, true),
 
                 // Western Coastal Outskirts (west of Limankent & Yeşilova)
-                new ForestClusterSpec(new Vector3(-62f, 0f, 6f), 5.8f, 4, 3, true),
-                new ForestClusterSpec(new Vector3(-63f, 0f, -14f), 5.0f, 3, 2, true, "Models/Cities/Industrial/detail-tank", IndustrialTex, "Mat_Kenney_Industrial", 1.5f),
-                new ForestClusterSpec(new Vector3(-60f, 0f, 24f), 5.2f, 4, 2, false),
-                new ForestClusterSpec(new Vector3(-58f, 0f, 52f), 5.6f, 4, 3, true),
+                new ForestClusterSpec(new Vector3(-63f, 0f, 6f), 6.0f, 4, 3, true),
+                new ForestClusterSpec(new Vector3(-64f, 0f, -13f), 5.2f, 3, 2, true, "Models/Cities/Industrial/detail-tank", IndustrialTex, "Mat_Kenney_Industrial", 2.9f),
+                new ForestClusterSpec(new Vector3(-61f, 0f, 24f), 5.4f, 4, 2, false),
+                new ForestClusterSpec(new Vector3(-59f, 0f, 54f), 5.8f, 4, 3, true),
 
                 // Eastern Coastal Outskirts (east of Demirkent & Üniversitekent)
-                new ForestClusterSpec(new Vector3(62f, 0f, 16f), 5.8f, 4, 3, true),
-                new ForestClusterSpec(new Vector3(62f, 0f, -22f), 5.4f, 3, 2, true, "Models/Cities/Industrial/building-p", IndustrialTex, "Mat_Kenney_Industrial", 1.9f),
-                new ForestClusterSpec(new Vector3(58f, 0f, 54f), 5.6f, 4, 3, true)
+                new ForestClusterSpec(new Vector3(63f, 0f, 16f), 6.0f, 4, 3, true),
+                new ForestClusterSpec(new Vector3(63f, 0f, -24f), 5.6f, 3, 2, true, "Models/Cities/Industrial/building-p", IndustrialTex, "Mat_Kenney_Industrial", 4.0f),
+                new ForestClusterSpec(new Vector3(59f, 0f, 56f), 5.8f, 4, 3, true)
             };
         }
     }

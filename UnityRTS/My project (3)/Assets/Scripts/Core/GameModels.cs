@@ -306,29 +306,28 @@ namespace PoliticalMayhem.Core
 
         public static Vector3 GetZoneOffset(string targetZone)
         {
-            if (string.IsNullOrWhiteSpace(targetZone)) return Vector3.zero;
+            if (string.IsNullOrWhiteSpace(targetZone)) return new Vector3(0f, 0f, -5.8f);
             switch (targetZone.Trim().ToLowerInvariant())
             {
                 case "rallysquare":
                 case "marketsquare":
                 case "campusplaza":
                 case "highlandsquare":
-                    return new Vector3(0f, 0f, 0f);
+                case "stagefront":
+                case "southgate":
+                    return new Vector3(0f, 0f, -5.8f);
                 case "harborgate":
                 case "harborsquare":
                 case "westgate":
-                    return new Vector3(-5.6f, 0f, -3.2f);
+                    return new Vector3(-5.0f, 0f, -5.4f);
                 case "industrialdistrict":
                 case "industrialsquare":
                 case "eastgate":
-                    return new Vector3(5.6f, 0f, -3.2f);
+                    return new Vector3(5.0f, 0f, -5.4f);
                 case "northgate":
-                case "stagefront":
-                    return new Vector3(0f, 0f, 5.6f);
-                case "southgate":
-                    return new Vector3(0f, 0f, -5.6f);
+                    return new Vector3(0f, 0f, -7.2f);
                 default:
-                    return new Vector3(2.2f, 0f, 2.2f);
+                    return new Vector3(0f, 0f, -5.8f);
             }
         }
 

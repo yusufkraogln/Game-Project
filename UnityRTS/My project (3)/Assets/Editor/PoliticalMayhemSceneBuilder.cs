@@ -73,9 +73,12 @@ namespace PoliticalMayhem.Editor
                 bool needsCityModelUpgrade = hasFbxAssets &&
                     (GameObject.Find("CityHub_Baskent/CityModel_0") == null ||
                      GameObject.Find("CityHub_Baskent/CityCapitolLandmark") == null);
+                GameObject baskentPlaza = GameObject.Find("CityHub_Baskent/CityPlaza");
+                bool needsProportionUpgrade = baskentPlaza == null || baskentPlaza.transform.localScale.x < 19f;
                 bool needsMapExpansionUpgrade = mapGroundGo == null ||
                     mapGroundGo.transform.localScale.x < 140f ||
-                    GameObject.Find("EnvironmentRoot/SceneryRoot") == null;
+                    GameObject.Find("EnvironmentRoot/SceneryRoot") == null ||
+                    needsProportionUpgrade;
 
                 if (envRoot == null || invalidGroundMat || needsCityModelUpgrade || needsMapExpansionUpgrade)
                 {
@@ -101,57 +104,67 @@ namespace PoliticalMayhem.Editor
 
             Scene scene = EditorSceneManager.NewScene(NewSceneSetup.EmptyScene, NewSceneMode.Single);
 
-            // 1. Lighting
+            // 1. Daylight Lighting & Atmosphere
             GameObject lightGo = new GameObject("Directional Light");
             Light dirLight = lightGo.AddComponent<Light>();
             dirLight.type = LightType.Directional;
-            dirLight.intensity = 1.15f;
-            dirLight.color = new Color(0.96f, 0.97f, 1.0f);
+            dirLight.intensity = 1.35f;
+            dirLight.color = new Color(1.0f, 0.96f, 0.88f);
             dirLight.shadows = LightShadows.Soft;
-            lightGo.transform.rotation = Quaternion.Euler(52f, -32f, 0f);
+            lightGo.transform.rotation = Quaternion.Euler(48f, -34f, 0f);
+
+            RenderSettings.ambientMode = UnityEngine.Rendering.AmbientMode.Trilight;
+            RenderSettings.ambientSkyColor = new Color(0.62f, 0.76f, 0.90f);
+            RenderSettings.ambientEquatorColor = new Color(0.54f, 0.60f, 0.56f);
+            RenderSettings.ambientGroundColor = new Color(0.28f, 0.34f, 0.26f);
+            RenderSettings.fog = true;
+            RenderSettings.fogMode = FogMode.Linear;
+            RenderSettings.fogColor = new Color(0.60f, 0.77f, 0.91f);
+            RenderSettings.fogStartDistance = 135f;
+            RenderSettings.fogEndDistance = 320f;
 
             // 2. Environment Root & Runtime Material Safeguard
             GameObject envRoot = new GameObject("EnvironmentRoot");
             MapEnvironmentVisuals envVisuals = envRoot.AddComponent<MapEnvironmentVisuals>();
             envVisuals.ClearBindings();
 
-            // Dark Matte Ocean Backdrop (360x320)
+            // Rich Coastal Ocean Backdrop (420x380)
             GameObject ocean = CreateBoardBlock(
                 "OceanWater",
                 envRoot.transform,
                 new Vector3(0f, -0.55f, 16f),
-                new Vector3(360f, 0.3f, 320f),
-                new Color(0.05f, 0.06f, 0.08f),
-                0.08f,
+                new Vector3(420f, 0.3f, 380f),
+                new Color(0.11f, 0.36f, 0.54f),
+                0.55f,
                 envVisuals,
                 withCollider: false);
 
-            // Expanded Dark Charcoal Playfield Ground (150x130 centered at Z=16)
+            // Lush Country-Map Island Ground (150x130 centered at Z=16)
             GameObject ground = CreateBoardBlock(
                 "MapGround",
                 envRoot.transform,
                 new Vector3(0f, -0.25f, 16f),
                 new Vector3(150f, 0.5f, 130f),
-                new Color(0.10f, 0.11f, 0.14f),
-                0.08f,
+                new Color(0.31f, 0.46f, 0.28f),
+                0.06f,
                 envVisuals,
                 withCollider: true);
             _ = ocean;
             _ = ground;
 
-            // Coastline Border Trims matching the 150x130 landmass (X in [-75, 75], Z in [-49, 81])
-            Color coastColor = new Color(0.22f, 0.25f, 0.30f);
-            CreateBoardBlock("CoastNorth", envRoot.transform, new Vector3(0f, -0.18f, 81.6f), new Vector3(152.4f, 0.55f, 1.4f), coastColor, 0.1f, envVisuals, false);
-            CreateBoardBlock("CoastSouth", envRoot.transform, new Vector3(0f, -0.18f, -49.6f), new Vector3(152.4f, 0.55f, 1.4f), coastColor, 0.1f, envVisuals, false);
-            CreateBoardBlock("CoastWest", envRoot.transform, new Vector3(-75.6f, -0.18f, 16f), new Vector3(1.4f, 0.55f, 132.4f), coastColor, 0.1f, envVisuals, false);
-            CreateBoardBlock("CoastEast", envRoot.transform, new Vector3(75.6f, -0.18f, 16f), new Vector3(1.4f, 0.55f, 132.4f), coastColor, 0.1f, envVisuals, false);
+            // Warm Sandy-Stone Coastline Border Trims matching the 150x130 landmass
+            Color coastColor = new Color(0.76f, 0.70f, 0.54f);
+            CreateBoardBlock("CoastNorth", envRoot.transform, new Vector3(0f, -0.18f, 81.8f), new Vector3(153.2f, 0.52f, 1.8f), coastColor, 0.12f, envVisuals, false);
+            CreateBoardBlock("CoastSouth", envRoot.transform, new Vector3(0f, -0.18f, -49.8f), new Vector3(153.2f, 0.52f, 1.8f), coastColor, 0.12f, envVisuals, false);
+            CreateBoardBlock("CoastWest", envRoot.transform, new Vector3(-75.8f, -0.18f, 16f), new Vector3(1.8f, 0.52f, 133.2f), coastColor, 0.12f, envVisuals, false);
+            CreateBoardBlock("CoastEast", envRoot.transform, new Vector3(75.8f, -0.18f, 16f), new Vector3(1.8f, 0.52f, 133.2f), coastColor, 0.12f, envVisuals, false);
 
-            // 3. Widened Slate Highways Connecting the 6 Cities (with Curbs, Medians, Streetlights & Signs)
+            // 3. Widened Asphalt Highways Connecting the 6 Cities (with Curbs, Yellow Medians, Tall Lamps & Overhead Signs)
             GameObject roadsRoot = new GameObject("RoadsRoot");
             roadsRoot.transform.SetParent(envRoot.transform, false);
-            Color roadColor = new Color(0.18f, 0.20f, 0.24f);
-            Color curbColor = new Color(0.14f, 0.16f, 0.20f);
-            Color medianColor = new Color(0.42f, 0.46f, 0.52f);
+            Color roadColor = new Color(0.24f, 0.26f, 0.30f);
+            Color curbColor = new Color(0.54f, 0.57f, 0.60f);
+            Color medianColor = new Color(0.90f, 0.80f, 0.32f);
 
             for (int i = 0; i < CityVisualBuilder.HighwayRoutes.Length; i++)
             {
@@ -159,21 +172,22 @@ namespace PoliticalMayhem.Editor
                 CreateRoadStrip(roadsRoot.transform, route.from, route.to, roadColor, curbColor, medianColor, envVisuals);
             }
 
-            // 4. Island Terrain Scenery (Forest Clusters, Park/Highland Patches & Rock Outcrops)
+            // 4. Island Terrain Scenery (Forest Clusters, Natural Rocks, Rural Outposts & Limankent Harbor Boats)
             CityVisualBuilder.PopulateIslandScenery(
                 envRoot.transform,
                 envVisuals,
                 (rend, tex, matKey) => AssignPersistedTexturedMaterial(rend, matKey, tex, Color.white, 0.18f),
                 (rend, matKey, col, smooth) => AssignPersistedMaterial(rend, matKey, col, smooth));
 
-            // 5. RTS Main Camera (positioned to frame the expanded 150x130 map)
+            // 5. RTS Main Camera (framed cleanly so all 6 cities including Limankent & Dağşehir fit on screen)
             GameObject camGo = new GameObject("Main Camera");
             camGo.tag = "MainCamera";
             Camera cam = camGo.AddComponent<Camera>();
             cam.clearFlags = CameraClearFlags.SolidColor;
-            cam.backgroundColor = new Color(0.04f, 0.05f, 0.07f);
-            camGo.transform.position = new Vector3(0f, 60f, -38f);
-            camGo.transform.rotation = Quaternion.Euler(54f, 0f, 0f);
+            cam.backgroundColor = new Color(0.54f, 0.73f, 0.90f);
+            cam.farClipPlane = 450f;
+            camGo.transform.position = new Vector3(0f, 76f, -54f);
+            camGo.transform.rotation = Quaternion.Euler(53f, 0f, 0f);
             RtsCameraController camCtrl = camGo.AddComponent<RtsCameraController>();
 
             // 6. Six Architectural Landmark City Hubs
@@ -274,27 +288,27 @@ namespace PoliticalMayhem.Editor
             root.transform.SetParent(parent, false);
             root.transform.position = pos;
 
-            // Expanded Matte Charcoal-Slate Plaza Platform (14.5 diameter)
+            // Clean Stone Urban Plaza Platform (21.0 diameter, low sleek 0.08 height so unit feet never sink)
             GameObject platform = CreateScenePrimitive(
                 PrimitiveType.Cylinder,
                 "CityPlaza",
                 root.transform,
-                new Vector3(0f, 0.12f, 0f),
-                new Vector3(CityVisualBuilder.PlazaDiameter, 0.16f, CityVisualBuilder.PlazaDiameter),
-                new Color(0.28f, 0.31f, 0.36f),
-                0.12f,
+                new Vector3(0f, 0.04f, 0f),
+                new Vector3(CityVisualBuilder.PlazaDiameter, 0.08f, CityVisualBuilder.PlazaDiameter),
+                new Color(0.70f, 0.72f, 0.74f),
+                0.10f,
                 envVisuals,
                 keepCollider: true);
             _ = platform;
 
-            // Expanded Status / Rally Ring (16.5 diameter)
+            // Expanded Status / Rally Ring (23.0 diameter)
             GameObject ring = CreateScenePrimitive(
                 PrimitiveType.Cylinder,
                 "StatusRing",
                 root.transform,
-                new Vector3(0f, 0.06f, 0f),
-                new Vector3(CityVisualBuilder.StatusRingDiameter, 0.08f, CityVisualBuilder.StatusRingDiameter),
-                Color.Lerp(cityColor, Color.black, 0.45f),
+                new Vector3(0f, 0.02f, 0f),
+                new Vector3(CityVisualBuilder.StatusRingDiameter, 0.04f, CityVisualBuilder.StatusRingDiameter),
+                Color.Lerp(cityColor, Color.black, 0.25f),
                 0.18f,
                 envVisuals,
                 keepCollider: false);
@@ -304,8 +318,8 @@ namespace PoliticalMayhem.Editor
                 PrimitiveType.Cylinder,
                 "CityCapitol",
                 root.transform,
-                new Vector3(0f, 0.20f, 0f),
-                new Vector3(CityVisualBuilder.CapitolPedestalDiameter, 0.16f, CityVisualBuilder.CapitolPedestalDiameter),
+                new Vector3(0f, 0.07f, 0f),
+                new Vector3(CityVisualBuilder.CapitolPedestalDiameter, 0.14f, CityVisualBuilder.CapitolPedestalDiameter),
                 cityColor,
                 0.28f,
                 envVisuals,
@@ -320,18 +334,18 @@ namespace PoliticalMayhem.Editor
             crowdAnchor.transform.SetParent(root.transform, false);
             crowdAnchor.transform.localPosition = Vector3.zero;
 
-            // 3D Floating Label (Crisp & Legible from High RTS Camera)
+            // 3D Floating Label (Crisp & Legible above tallest Capitol landmark)
             GameObject labelGo = new GameObject("CityLabel");
             labelGo.transform.SetParent(root.transform, false);
-            labelGo.transform.localPosition = new Vector3(0f, Mathf.Max(7.8f, landmarkHeight + 2.8f), 0f);
-            labelGo.transform.rotation = Quaternion.Euler(54f, 0f, 0f);
+            labelGo.transform.localPosition = new Vector3(0f, Mathf.Max(9.5f, landmarkHeight + 3.2f), 0f);
+            labelGo.transform.rotation = Quaternion.Euler(53f, 0f, 0f);
             TextMesh tm = labelGo.AddComponent<TextMesh>();
             tm.text = $"{CityCatalog.GetDisplayName(cityId)}\n{CityCatalog.GetPopulation(cityId):N0} Oy";
-            tm.characterSize = 0.21f;
-            tm.fontSize = 46;
+            tm.characterSize = 0.24f;
+            tm.fontSize = 48;
             tm.anchor = TextAnchor.MiddleCenter;
             tm.alignment = TextAlignment.Center;
-            tm.color = new Color(0.92f, 0.94f, 0.97f);
+            tm.color = new Color(0.98f, 0.99f, 1.0f);
 
             CityHubMarker marker = root.AddComponent<CityHubMarker>();
             marker.cityId = cityId;
@@ -358,14 +372,6 @@ namespace PoliticalMayhem.Editor
                 root,
                 envVisuals,
                 (rend, tex, matKey) => AssignPersistedTexturedMaterial(rend, matKey, tex, Color.white, 0.18f));
-
-            if (cityId == CityId.Dagsehir)
-            {
-                // Stepped highland mountain monoliths framing Dağşehir's northern skyline outside the inner plaza
-                CreateScenePrimitive(PrimitiveType.Cube, "Mountain_0", root, new Vector3(-5.8f, 2.2f, 5.6f), new Vector3(3.4f, 4.4f, 3.4f), midSlate, 0.15f, envVisuals, false);
-                CreateScenePrimitive(PrimitiveType.Cube, "Mountain_1", root, new Vector3(5.8f, 2.5f, 5.8f), new Vector3(3.2f, 5.0f, 3.2f), lightSlate, 0.15f, envVisuals, false);
-                CreateScenePrimitive(PrimitiveType.Cube, "Mountain_2", root, new Vector3(0f, 3.0f, 8.2f), new Vector3(4.2f, 6.0f, 3.6f), midSlate, 0.15f, envVisuals, false);
-            }
 
             if (populated)
                 return;
@@ -418,37 +424,37 @@ namespace PoliticalMayhem.Editor
             string keyA = CityCatalog.ToKey(fromCity);
             string keyB = CityCatalog.ToKey(toCity);
 
-            // Outer curb / shoulder bed (2.15f wide)
+            // Outer curb / shoulder bed (3.8f wide)
             GameObject curb = CreateBoardBlock(
                 $"RoadCurb_{keyA}_{keyB}",
                 parent,
-                new Vector3(mid.x, 0.015f, mid.z),
-                new Vector3(2.15f, 0.03f, dist),
+                new Vector3(mid.x, 0.01f, mid.z),
+                new Vector3(3.8f, 0.02f, dist),
                 curbColor,
-                0.10f,
+                0.12f,
                 envVisuals,
                 withCollider: false);
             curb.transform.rotation = rot;
 
-            // Main highway asphalt surface (1.7f wide)
+            // Main highway asphalt surface (3.2f wide — fits vans & units comfortably)
             GameObject road = CreateBoardBlock(
                 $"Road_{keyA}_{keyB}",
                 parent,
-                new Vector3(mid.x, 0.03f, mid.z),
-                new Vector3(1.7f, 0.05f, dist),
+                new Vector3(mid.x, 0.025f, mid.z),
+                new Vector3(3.2f, 0.035f, dist),
                 roadColor,
                 0.15f,
                 envVisuals,
                 withCollider: false);
             road.transform.rotation = rot;
 
-            // Center median lane divider outside the city plazas
-            float medianLen = Mathf.Max(2f, dist - 17.0f);
+            // Center median lane divider stopping cleanly outside the 23.0-diameter city rings
+            float medianLen = Mathf.Max(2f, dist - 24.5f);
             GameObject median = CreateBoardBlock(
                 $"RoadMedian_{keyA}_{keyB}",
                 parent,
-                new Vector3(mid.x, 0.045f, mid.z),
-                new Vector3(0.14f, 0.035f, medianLen),
+                new Vector3(mid.x, 0.042f, mid.z),
+                new Vector3(0.18f, 0.02f, medianLen),
                 medianColor,
                 0.20f,
                 envVisuals,

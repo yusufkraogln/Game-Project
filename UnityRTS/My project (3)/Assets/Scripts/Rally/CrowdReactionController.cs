@@ -168,17 +168,28 @@ namespace PoliticalMayhem.Rally
             GameObject root = new GameObject("RallyCrowdGroup");
             _crowdRoot = root.transform;
 
+            // Arrange rally crowd in 2 clean staggered rows inside the open southern front courtyard
+            // (X in [-4.35, +4.35], Z in [-7.4, -4.6], facing north toward the Capitol) -> 0 overlaps in all 6 cities.
+            int frontRowCount = Mathf.Max(1, (_crowdNpcCount - 2) / 2);
+            int backRowCount = Mathf.Max(1, _crowdNpcCount - frontRowCount);
+
             for (int i = 0; i < _crowdNpcCount; i++)
             {
-                float angle = (i / (float)_crowdNpcCount) * Mathf.PI * 2f;
-                float radius = _crowdRadius + (i % 2 == 0 ? 0.7f : -0.5f);
-                Vector3 localPos = new Vector3(Mathf.Cos(angle) * radius, 0f, Mathf.Sin(angle) * radius);
+                bool isFront = i < frontRowCount;
+                int rowIdx = isFront ? i : (i - frontRowCount);
+                int rowTotal = isFront ? frontRowCount : backRowCount;
+                float t = rowTotal > 1 ? (rowIdx / (float)(rowTotal - 1)) : 0.5f;
+                float arcDeg = isFront ? Mathf.Lerp(-120f, -60f, t) : Mathf.Lerp(-124f, -56f, t);
+                float angle = arcDeg * Mathf.Deg2Rad;
+                float radius = isFront ? 5.5f : 7.3f;
+
+                Vector3 localPos = new Vector3(Mathf.Cos(angle) * radius, 0.08f, Mathf.Sin(angle) * radius);
                 Vector3 inwardDir = new Vector3(-localPos.x, 0f, -localPos.z);
                 float yaw = inwardDir.sqrMagnitude > 0.0001f
                     ? Mathf.Atan2(inwardDir.x, inwardDir.z) * Mathf.Rad2Deg
                     : 0f;
 
-                float targetHeight = 1.60f + (i % 3) * 0.05f;
+                float targetHeight = 1.00f + (i % 3) * 0.04f;
                 string modelPath = CrowdModelPaths[i % CrowdModelPaths.Length];
 
                 GameObject npc = ModelVisualHelper.InstantiateNormalizedModel(
@@ -190,7 +201,7 @@ namespace PoliticalMayhem.Rally
                     yaw,
                     targetHeight,
                     normalizeByHeight: true,
-                    groundLocalY: 0f,
+                    groundLocalY: 0.08f,
                     tint: Color.white,
                     smoothness: 0.20f,
                     stripColliders: true);
@@ -211,13 +222,13 @@ namespace PoliticalMayhem.Rally
 
         private void AttachMoodIndicators(Transform npcRoot, bool addPennant)
         {
-            // Ground mood aura disc so crowd sentiment is unmistakable without tinting human skin/clothes
+            // Ground mood aura disc scaled proportionally to 1.04u human NPCs
             GameObject aura = GameObject.CreatePrimitive(PrimitiveType.Cylinder);
             aura.name = "MoodAuraRing";
             Destroy(aura.GetComponent<Collider>());
             aura.transform.SetParent(npcRoot, false);
-            aura.transform.localPosition = new Vector3(0f, 0.025f, 0f);
-            aura.transform.localScale = new Vector3(0.75f, 0.015f, 0.75f);
+            aura.transform.localPosition = new Vector3(0f, 0.015f, 0f);
+            aura.transform.localScale = new Vector3(0.52f, 0.012f, 0.52f);
             Renderer auraRend = aura.GetComponent<Renderer>();
             if (auraRend != null)
                 _crowdRenderers.Add(auraRend);
@@ -228,16 +239,16 @@ namespace PoliticalMayhem.Rally
             pole.name = "RallyPennantPole";
             Destroy(pole.GetComponent<Collider>());
             pole.transform.SetParent(npcRoot, false);
-            pole.transform.localPosition = new Vector3(0.32f, 1.15f, 0.12f);
-            pole.transform.localScale = new Vector3(0.03f, 0.85f, 0.03f);
+            pole.transform.localPosition = new Vector3(0.22f, 0.78f, 0.08f);
+            pole.transform.localScale = new Vector3(0.022f, 0.58f, 0.022f);
             MaterialHelper.ApplyColor(pole.GetComponent<Renderer>(), new Color(0.28f, 0.24f, 0.20f), 0.15f);
 
             GameObject flag = GameObject.CreatePrimitive(PrimitiveType.Cube);
             flag.name = "RallyPennantFlag";
             Destroy(flag.GetComponent<Collider>());
             flag.transform.SetParent(npcRoot, false);
-            flag.transform.localPosition = new Vector3(0.32f, 1.60f, 0.12f);
-            flag.transform.localScale = new Vector3(0.28f, 0.20f, 0.03f);
+            flag.transform.localPosition = new Vector3(0.22f, 1.08f, 0.08f);
+            flag.transform.localScale = new Vector3(0.20f, 0.14f, 0.022f);
             Renderer flagRend = flag.GetComponent<Renderer>();
             if (flagRend != null)
                 _crowdRenderers.Add(flagRend);

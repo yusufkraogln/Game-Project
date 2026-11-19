@@ -38,7 +38,7 @@ namespace PoliticalMayhem.Units
 
         public static readonly Vector2 PlayfieldXBounds = new Vector2(-71f, 71f);
         public static readonly Vector2 PlayfieldZBounds = new Vector2(-46f, 78f);
-        public const float CapitolExclusionRadius = 3.2f;
+        public const float CapitolExclusionRadius = 3.6f;
 
         [Header("Visuals")]
         [SerializeField] private Renderer _bodyRenderer;
@@ -224,8 +224,8 @@ namespace PoliticalMayhem.Units
                 if (_modelRenderers == null || _modelRenderers.Length == 0)
                     _modelRenderers = _visualPulseRoot.GetComponentsInChildren<Renderer>(true);
 
-                // Subtle cool/warm team tint on textured .fbx materials while preserving URP shader & texture
-                Color subtleTint = Color.Lerp(Color.white, teamAccent, 0.22f);
+                // Very gentle team tint on textured character/vehicle materials so skin & clothing look natural
+                Color subtleTint = Color.Lerp(Color.white, teamAccent, 0.12f);
                 subtleTint.a = 1f;
 
                 for (int i = 0; i < _modelRenderers.Length; i++)

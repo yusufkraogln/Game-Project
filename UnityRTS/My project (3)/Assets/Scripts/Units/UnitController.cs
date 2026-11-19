@@ -109,17 +109,21 @@ namespace PoliticalMayhem.Units
         {
             if (_gameManager == null) return;
 
-            // Player A equal starter army (4 units)
-            SpawnUnitInternal(PlayerIdentity.PlayerAId, UnitType.CampaignVolunteer, CityId.Baskent, "WestGate", new Vector3(-8f, 0f, -2f));
-            SpawnUnitInternal(PlayerIdentity.PlayerAId, UnitType.Propagandist, CityId.Baskent, "WestGate", new Vector3(-9.5f, 0f, -3.5f));
-            SpawnUnitInternal(PlayerIdentity.PlayerAId, UnitType.Bodyguard, CityId.Baskent, "WestGate", new Vector3(-6.5f, 0f, -1f));
-            SpawnUnitInternal(PlayerIdentity.PlayerAId, UnitType.CampaignVolunteer, CityId.Limankent, "HarborGate", new Vector3(-28f, 0f, -11f));
+            Vector3 baskent = CityCatalog.GetWorldPosition(CityId.Baskent);
+            Vector3 limankent = CityCatalog.GetWorldPosition(CityId.Limankent);
+            Vector3 demirkent = CityCatalog.GetWorldPosition(CityId.Demirkent);
+
+            // Player A equal starter army (4 units) — cleanly placed in open front plazas (zero clipping)
+            SpawnUnitInternal(PlayerIdentity.PlayerAId, UnitType.CampaignVolunteer, CityId.Baskent, "WestGate", baskent + new Vector3(-5.2f, 0f, -4.8f));
+            SpawnUnitInternal(PlayerIdentity.PlayerAId, UnitType.Propagandist, CityId.Baskent, "WestGate", baskent + new Vector3(-6.0f, 0f, -6.1f));
+            SpawnUnitInternal(PlayerIdentity.PlayerAId, UnitType.Bodyguard, CityId.Baskent, "WestGate", baskent + new Vector3(-4.4f, 0f, -6.1f));
+            SpawnUnitInternal(PlayerIdentity.PlayerAId, UnitType.CampaignVolunteer, CityId.Limankent, "HarborGate", limankent + new Vector3(-1.5f, 0f, -5.6f));
 
             // Player B equal starter army (4 units) — Demirkent unit is outside Player A's vision (Fog of War!)
-            SpawnUnitInternal(PlayerIdentity.PlayerBId, UnitType.CampaignVolunteer, CityId.Baskent, "EastGate", new Vector3(11f, 0f, 2f));
-            SpawnUnitInternal(PlayerIdentity.PlayerBId, UnitType.Propagandist, CityId.Baskent, "EastGate", new Vector3(12.5f, 0f, 3.5f));
-            SpawnUnitInternal(PlayerIdentity.PlayerBId, UnitType.Bodyguard, CityId.Baskent, "EastGate", new Vector3(9.5f, 0f, 1f));
-            SpawnUnitInternal(PlayerIdentity.PlayerBId, UnitType.CampaignVolunteer, CityId.Demirkent, "IndustrialDistrict", new Vector3(28f, 0f, -9f));
+            SpawnUnitInternal(PlayerIdentity.PlayerBId, UnitType.CampaignVolunteer, CityId.Baskent, "EastGate", baskent + new Vector3(5.2f, 0f, -4.8f));
+            SpawnUnitInternal(PlayerIdentity.PlayerBId, UnitType.Propagandist, CityId.Baskent, "EastGate", baskent + new Vector3(6.0f, 0f, -6.1f));
+            SpawnUnitInternal(PlayerIdentity.PlayerBId, UnitType.Bodyguard, CityId.Baskent, "EastGate", baskent + new Vector3(4.4f, 0f, -6.1f));
+            SpawnUnitInternal(PlayerIdentity.PlayerBId, UnitType.CampaignVolunteer, CityId.Demirkent, "IndustrialDistrict", demirkent + new Vector3(1.5f, 0f, -5.6f));
         }
 
         private void Update()
@@ -622,31 +626,31 @@ namespace PoliticalMayhem.Units
                     modelPath = "Models/Units/Vehicles/van";
                     texturePath = "Models/Units/Vehicles/Textures/colormap";
                     emissionPath = null;
-                    targetSize = 2.45f;
+                    targetSize = 3.35f;
                     normalizeByHeight = false;
                     return;
 
                 case UnitType.Bodyguard:
-                    modelPath = "Models/Units/Characters/blocky_03_knight";
-                    texturePath = "Models/Units/Characters/blocky_palette";
-                    emissionPath = "Models/Units/Characters/blocky_palette_emissive";
-                    targetSize = 2.15f;
+                    modelPath = "Models/Units/Characters/unit_bodyguard";
+                    texturePath = "Models/Units/Characters/units_palette";
+                    emissionPath = null;
+                    targetSize = 1.30f;
                     normalizeByHeight = true;
                     return;
 
                 case UnitType.Propagandist:
-                    modelPath = "Models/Units/Characters/blocky_19_princess";
-                    texturePath = "Models/Units/Characters/blocky_palette";
-                    emissionPath = "Models/Units/Characters/blocky_palette_emissive";
-                    targetSize = 2.05f;
+                    modelPath = "Models/Units/Characters/unit_propagandist";
+                    texturePath = "Models/Units/Characters/units_palette";
+                    emissionPath = null;
+                    targetSize = 1.22f;
                     normalizeByHeight = true;
                     return;
 
                 default:
-                    modelPath = "Models/Units/Characters/blocky_01_hero";
-                    texturePath = "Models/Units/Characters/blocky_palette";
-                    emissionPath = "Models/Units/Characters/blocky_palette_emissive";
-                    targetSize = 1.85f;
+                    modelPath = "Models/Units/Characters/unit_volunteer";
+                    texturePath = "Models/Units/Characters/units_palette";
+                    emissionPath = null;
+                    targetSize = 1.15f;
                     normalizeByHeight = true;
                     return;
             }
@@ -666,9 +670,9 @@ namespace PoliticalMayhem.Units
             root.transform.position = safePos;
 
             CapsuleCollider hitCollider = root.AddComponent<CapsuleCollider>();
-            hitCollider.center = new Vector3(0f, 1.0f, 0f);
-            hitCollider.radius = unitType == UnitType.RallyConvoy ? 1.2f : 0.65f;
-            hitCollider.height = 2.1f;
+            hitCollider.center = new Vector3(0f, unitType == UnitType.RallyConvoy ? 0.85f : 0.65f, 0f);
+            hitCollider.radius = unitType == UnitType.RallyConvoy ? 1.55f : 0.48f;
+            hitCollider.height = unitType == UnitType.RallyConvoy ? 1.8f : 1.45f;
 
             GetUnitModelSpec(
                 unitType,
@@ -690,7 +694,7 @@ namespace PoliticalMayhem.Units
                 0f,
                 targetSize,
                 normalizeByHeight,
-                0f,
+                0.08f,
                 Color.white,
                 0.20f,
                 stripColliders: true,
@@ -706,8 +710,8 @@ namespace PoliticalMayhem.Units
                         PrimitiveType.Cube,
                         "TeamAccent",
                         root.transform,
-                        new Vector3(0f, 1.38f, -0.15f),
-                        new Vector3(0.92f, 0.16f, 0.42f));
+                        new Vector3(0f, 1.78f, -0.15f),
+                        new Vector3(1.15f, 0.16f, 0.55f));
                 }
                 else
                 {
@@ -715,8 +719,8 @@ namespace PoliticalMayhem.Units
                         PrimitiveType.Cylinder,
                         "TeamAccent",
                         root.transform,
-                        new Vector3(0f, 0.11f, 0f),
-                        new Vector3(1.12f, 0.045f, 1.12f));
+                        new Vector3(0f, 0.10f, 0f),
+                        new Vector3(0.76f, 0.03f, 0.76f));
                 }
             }
             else
@@ -754,21 +758,21 @@ namespace PoliticalMayhem.Units
                 }
             }
 
-            // Crisp cyan-white selection ring on dark ground
+            // Crisp cyan-white selection ring
             GameObject ring = GameObject.CreatePrimitive(PrimitiveType.Cylinder);
             ring.name = "SelectionRing";
             Destroy(ring.GetComponent<Collider>());
             ring.transform.SetParent(root.transform, false);
-            ring.transform.localPosition = new Vector3(0f, 0.06f, 0f);
-            float ringScale = unitType == UnitType.RallyConvoy ? 2.65f : 1.55f;
-            ring.transform.localScale = new Vector3(ringScale, 0.04f, ringScale);
-            MaterialHelper.ApplyColor(ring.GetComponent<Renderer>(), new Color(0.55f, 0.90f, 1.0f), 0.35f);
+            ring.transform.localPosition = new Vector3(0f, 0.09f, 0f);
+            float ringScale = unitType == UnitType.RallyConvoy ? 3.55f : 1.05f;
+            ring.transform.localScale = new Vector3(ringScale, 0.025f, ringScale);
+            MaterialHelper.ApplyColor(ring.GetComponent<Renderer>(), new Color(0.25f, 0.95f, 0.55f), 0.35f);
             ring.SetActive(false);
 
             // 3D floating health bar (shown when selected or damaged, hidden under Fog-of-War)
             GameObject healthBarRoot = new GameObject("HealthBarRoot");
             healthBarRoot.transform.SetParent(root.transform, false);
-            float hbHeight = unitType == UnitType.RallyConvoy ? 2.15f : 2.65f;
+            float hbHeight = unitType == UnitType.RallyConvoy ? 2.30f : 1.75f;
             healthBarRoot.transform.localPosition = new Vector3(0f, hbHeight, 0f);
 
             CreateVisualPart(
